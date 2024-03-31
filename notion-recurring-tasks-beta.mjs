@@ -1,8 +1,12 @@
 /**
  * To Do
- * - Update the configs with up-to-date database schema pulled from Notion
+ * X Update the configs with up-to-date database schema pulled from Notion
+ * X Write method to handle status updates
+ * X Handle secondary status updates
+ * X Add robust logging
  * - Create reusable methods for API calls, scheduling, retrying, and error handling
- * - Export a report about processed tasks; user can add further steps to email this to themselves, send a Slack message, etc
+ * X Export a report about processed tasks; user can add further steps to email this to themselves, send a Slack message, etc
+ * - Filter user choices further
  */
 
 import { Client } from "@notionhq/client";
@@ -16,7 +20,7 @@ export default {
 	name: "Beta Notion Recurring Tasks",
 	description: "Recurring Tasks for Ultimate Brain",
 	key: "notion-recurring-tasks-beta",
-	version: "0.1.56",
+	version: "0.1.63",
 	type: "action",
 	props: {
 		notion: {
@@ -160,24 +164,27 @@ export default {
 						type: "string",
 						label: `"Not Started" Task Status Option`,
 						description: `Select the option from your chosen Status property that represents a value of "Not Started".\n\nThis is the option that your tasks will be set back to when this automation runs and processes you completed recurring tasks. This option is called **Not Started** by default, or **To Do** in Ultimate Brain; if you've renamed this option, choose that one instead.\n\n`,
-						options: properties[JSON.parse(this.doneProp).name].status.options.map((option) => ({
-							label: option.name,
-							value: JSON.stringify(option),
-						})),
+						options: properties[JSON.parse(this.doneProp).name].status.options.map(
+							(option) => ({
+								label: option.name,
+								value: JSON.stringify(option),
+							})
+						),
 						optional: false,
 					},
 					donePropStatusCompleted: {
 						type: "string",
 						label: `"Done" Task Status Option`,
 						description: `Select the option from your chosen Status property that represents a value of "Done".\n\nThis is the option that you'll set your tasks to in order to *complete* them. This workflow will only process tasks that are currently set to this option.\n\nThis option is called **Done** by default; if you've renamed this option, choose that one instead.\n\n`,
-						options: properties[JSON.parse(this.doneProp).name].status.options.map((option) => ({
-							label: option.name,
-							value: JSON.stringify(option),
-						})),
+						options: properties[JSON.parse(this.doneProp).name].status.options.map(
+							(option) => ({
+								label: option.name,
+								value: JSON.stringify(option),
+							})
+						),
 						optional: false,
 					},
-				}
-			),
+				}),
 			nextDueAPIProp: {
 				type: "string",
 				label: "Next Due API Property",
@@ -235,7 +242,7 @@ export default {
 					})),
 					optional: true,
 					reloadProps: true,
-				}
+				},
 			}),
 			...(this.secondaryDoneProp &&
 				JSON.parse(this.secondaryDoneProp).type === "status" && {
@@ -243,7 +250,9 @@ export default {
 						type: "string",
 						label: `"Not Started" Secondary Task Status Option`,
 						description: `Select the option from your chosen Status property that represents a value of "Not Started".\n\nThis is the option that your tasks will be set back to when this automation runs and processes you completed recurring tasks. This option is called **Not Started** by default, or **To Do** in Ultimate Brain; if you've renamed this option, choose that one instead.\n\n`,
-						options: properties[JSON.parse(this.secondaryDoneProp).name].status.options.map((option) => ({
+						options: properties[
+							JSON.parse(this.secondaryDoneProp).name
+						].status.options.map((option) => ({
 							label: option.name,
 							value: JSON.stringify(option),
 						})),
@@ -253,7 +262,9 @@ export default {
 						type: "string",
 						label: `"Done" Secondary Task Status Option`,
 						description: `Select the option from your chosen Status property that represents a value of "Done".\n\nThis is the option that you'll set your tasks to in order to *complete* them. This workflow will only process tasks that are currently set to this option.\n\nThis option is called **Done** by default; if you've renamed this option, choose that one instead.\n\n`,
-						options: properties[JSON.parse(this.secondaryDoneProp).name].status.options.map((option) => ({
+						options: properties[
+							JSON.parse(this.secondaryDoneProp).name
+						].status.options.map((option) => ({
 							label: option.name,
 							value: JSON.stringify(option),
 						})),
@@ -319,20 +330,12 @@ export default {
 						return resp;
 					} catch (error) {
 						if (400 <= error.status && error.status <= 409) {
-							// Don't retry for errors 400-409
+							console.log("Error updating UTC Offset:", error);
 							bail(error);
-							return;
-						}
-						if (
-							error.status === 500 ||
-							error.status === 503 ||
-							error.status === 504
-						) {
-							// Retry on 500, 503, and 504
+						} else {
+							console.log("Error updating UTC Offset:", error);
 							throw error;
 						}
-						// Don't retry for other errors
-						bail(error);
 					}
 				},
 				{
@@ -344,6 +347,80 @@ export default {
 					},
 				}
 			);
+		},
+		async updateSchema(notion) {
+			// Get the database schema
+			const response = await retry(
+				async (bail) => {
+					try {
+						const resp = await notion.databases.retrieve({
+							database_id: this.databaseID,
+						});
+
+						return resp;
+					} catch (error) {
+						if (400 <= error.status && error.status <= 409) {
+							console.log("Error retrieving database:", error);
+							bail(error);
+						} else {
+							console.log("Error retrieving database:", error);
+							throw error;
+						}
+					}
+				},
+				{
+					retries: 5,
+					onRetry: (error) =>
+						console.log("Retrying Notion database retrieval:", error),
+				}
+			);
+
+			// Ensure the status option names are up-to-date
+			if (config.done.type === "status") {
+				console.log(`Current Done Status Options: ${config.done.not_started.name} (for Not Started) and ${config.done.completed.name} (for Done). Checking the database for the most up-to-date status option names...`);
+				const statusProp = response.properties[config.done.name];
+
+				console.log(`Done Status Property from datbase:`);
+				console.dir(statusProp);
+
+				config.done.not_started.name = statusProp.status.options.find(
+					(option) => option.id === config.done.not_started.id
+				).name;
+
+				config.done.completed.name = statusProp.status.options.find(
+					(option) => option.id === config.done.completed.id
+				).name;
+
+				console.log(
+					`Updated Done Status Options: ${config.done.not_started.name} (for Not Started) and ${config.done.completed.name} (for Done).`
+				);
+			}
+
+			if (config.secondary_done && config.secondary_done.type === "status") {
+				console.log(`Current Secondary Done Status Options: ${config.secondary_done.not_started.name} (for Not Started) and ${config.secondary_done.completed.name} (for Done).
+			
+			Checking the database for the most up-to-date status option names...`);
+				const statusProp = response.properties[config.secondary_done.name];
+
+				console.log(`Secondary Done Status Property from datbase:`);
+				console.dir(statusProp);
+
+				config.secondary_done.not_started.name = statusProp.status.options.find(
+					(option) => option.id === config.secondary_done.not_started.id
+				).name;
+
+				config.secondary_done.completed.name = statusProp.status.options.find(
+					(option) => option.id === config.secondary_done.completed.id
+				).name;
+
+				console.log(
+					`Updated Secondary Done Status Options: ${config.secondary_done.not_started.name} (for Not Started) and ${config.secondary_done.completed.name} (for Done).`
+				);
+			}
+
+			// Logging the config once again
+			console.log(`Schema update successful. Final Configs:`);
+			console.dir(config);
 		},
 		async queryNotion(notion, limiter) {
 			// Pagination variables
@@ -373,34 +450,87 @@ export default {
 			let rows = [];
 			// Query the Notion API until hasMore == false. Add all results to the rows array
 			while (hasMore == undefined || hasMore == true) {
+				// Define the "done" filter parameter based on the config
+				let doneFilter = {}
+				if (config.done.type === "checkbox") {
+					doneFilter = {
+						property: config.done.name,
+						checkbox: {
+							equals: true,
+						},
+					};
+				} else if (config.done.type === "status") {
+					doneFilter = {
+						property: config.done.name,
+						status: {
+							equals: config.done.completed.name,
+						},
+					};
+				}
+
+				console.log(`Done filter:`);
+				console.dir(doneFilter);
+
+				// Define the "secondary done" filter parameter based on the config
+				let secondaryDoneFilter = {};
+				if (config.secondary_done) {
+					if (config.secondary_done.type === "checkbox") {
+						secondaryDoneFilter = {
+							property: config.secondary_done.name,
+							checkbox: {
+								equals: true,
+							},
+						};
+					} else if (config.secondary_done.type === "status") {
+						secondaryDoneFilter = {
+							property: config.secondary_done.name,
+							status: {
+								equals: config.secondary_done.completed.name,
+							},
+						};
+					}
+
+					console.log(`Secondary Done filter:`);
+					console.dir(secondaryDoneFilter);
+				}
+
+				// Create the "OR" array for "done" and "secondary done" filters
+				let orArray = [doneFilter];
+				if (config.secondary_done) {
+					orArray.push(secondaryDoneFilter);
+				}
+
+				console.log(`OR array:`);
+				console.dir(orArray);
+				
+				const params = {
+					database_id: this.databaseID,
+					//filter_properties: [config.due.id, config.nextDueAPI.id],
+					page_size: 100,
+					start_cursor: token,
+					filter: {
+						and: [
+							{
+								or: orArray,
+							},
+							{
+								property: config.nextDueAPI.name,
+								formula: {
+									string: {
+										does_not_equal: "∅",
+									},
+								},
+							},
+						],
+					},
+				};
+
+				console.log(`Querying Notion database with params:`);
+				console.dir(params);
+
 				await retry(
 					async (bail) => {
 						try {
-							const params = {
-								database_id: this.databaseID,
-								filter_properties: [config.due.id, config.nextDueAPI.id],
-								page_size: 100,
-								start_cursor: token,
-								filter: {
-									and: [
-										{
-											property: config.done.name,
-											checkbox: {
-												equals: true,
-											},
-										},
-										{
-											property: config.nextDueAPI.name,
-											formula: {
-												string: {
-													does_not_equal: "∅",
-												},
-											},
-										},
-									],
-								},
-							};
-
 							const resp = await limiter.schedule(() =>
 								notion.databases.query(params)
 							);
@@ -411,20 +541,12 @@ export default {
 							}
 						} catch (error) {
 							if (400 <= error.status && error.status <= 409) {
-								// Don't retry for errors 400-409
+								console.log("Error querying Notion database:", error);
 								bail(error);
-								return;
-							}
-							if (
-								error.status === 500 ||
-								error.status === 503 ||
-								error.status === 504
-							) {
-								// Retry on 500, 503, and 504
+							} else {
+								console.log("Error querying Notion database:", error);
 								throw error;
 							}
-							// Don't retry for other errors
-							bail(error);
 						}
 					},
 					{
@@ -478,24 +600,69 @@ export default {
 				console.log(`Current Due value: ${due}`);
 				console.log(`Current Next Due API value: ${nextDueAPI}`);
 
+				// Define the "Done" type and values
+				let doneType = config.done.type;
+				console.log(`Done type: ${doneType}`);
+				let doneObject = {};
+				if (doneType === "checkbox") {
+					doneObject = {
+						checkbox: false,
+					};
+				} else if (doneType === "status") {
+					doneObject = {
+						status: {
+							name: config.done.not_started.name,
+						},
+					};
+				}
+
+				console.log(`Done object:`);
+				console.dir(doneObject);
+
+				// Set up "Secondary Done" type and values if needed
+				let secondaryDoneObject = {};
+				if (config.secondary_done) {
+					let secondaryDoneType = config.secondary_done.type;
+					console.log(`Secondary Done type: ${secondaryDoneType}`);
+					if (secondaryDoneType === "checkbox") {
+						secondaryDoneObject = {
+							[config.secondary_done.name]: {
+								checkbox: false,
+							},
+						};
+					} else if (secondaryDoneType === "status") {
+						secondaryDoneObject = {
+							[config.secondary_done.name]: {
+								status: {
+									name: config.secondary_done.not_started.name,
+								},
+							},
+						};
+					}
+				}
+
+				const params = {
+					page_id: page.id,
+					properties: {
+						[config.done.name]: doneObject,
+						[config.due.name]: {
+							date: {
+								start: startDate,
+								end: endDate,
+							},
+						},
+						...(config.secondary_done && secondaryDoneObject),
+					},
+				}
+
+				console.log(`Update params:`);
+				console.dir(params);
+
 				await retry(
 					async (bail) => {
 						try {
 							const resp = await limiter.schedule(() =>
-								notion.pages.update({
-									page_id: page.id,
-									properties: {
-										[config.done.name]: {
-											checkbox: false,
-										},
-										[config.due.name]: {
-											date: {
-												start: startDate,
-												end: endDate,
-											},
-										},
-									},
-								})
+								notion.pages.update(params)
 							);
 
 							resultsArray.push(resp);
@@ -533,40 +700,44 @@ export default {
 	},
 	async run({ $ }) {
 		// Set the configs
+		console.log(`Setting up configs...`);
 		config.due = JSON.parse(this.dueProp);
 		config.nextDueAPI = JSON.parse(this.nextDueAPIProp);
 		config.utcOffset = JSON.parse(this.utcOffsetProp);
 		config.done = JSON.parse(this.doneProp);
 		if (this.donePropStatusNotStarted) {
-			config.doneStatusNotStarted = JSON.parse(this.donePropStatusNotStarted);
+			config.done.not_started = JSON.parse(this.donePropStatusNotStarted);
 		}
 		if (this.donePropStatusCompleted) {
-			config.doneStatusCompleted = JSON.parse(this.donePropStatusCompleted);
+			config.done.completed = JSON.parse(this.donePropStatusCompleted);
 		}
 		config.type = JSON.parse(this.typeProp);
 		if (this.secondaryDoneProp) {
-			config.secondaryDone = JSON.parse(this.secondaryDoneProp);
-		}
-		if (this.secondaryDonePropStatusNotStarted) {
-			config.secondaryDoneStatusNotStarted = JSON.parse(
-				this.secondaryDonePropStatusNotStarted
-			);
-		}
-		if (this.secondaryDonePropStatusCompleted) {
-			config.secondaryDoneStatusCompleted = JSON.parse(
-				this.secondaryDonePropStatusCompleted
-			);
+			config.secondary_done = JSON.parse(this.secondaryDoneProp);
+			if (this.secondaryDonePropStatusNotStarted) {
+				config.secondary_done.not_started = JSON.parse(
+					this.secondaryDonePropStatusNotStarted
+				);
+			}
+			if (this.secondaryDonePropStatusCompleted) {
+				config.secondary_done.completed = JSON.parse(
+					this.secondaryDonePropStatusCompleted
+				);
+			}
 		}
 
-		console.log(`Configs:`);
-		console.dir(config)
+		console.log(`Initial configs, based on user's configured properties here in Pipedream:`);
+		console.dir(config);
 
-		/*
-
-		// Query the chosen tasks database for completed recurring tasks
+		// Set up our Notion client
+		console.log(`Setting up Notion client...`)
 		const notion = new Client({
 			auth: this.notion.$auth.oauth_access_token,
 		});
+
+		// Update the schema
+		console.log(`Updating schema for status-type props, if set...`);
+		await this.updateSchema(notion);
 
 		// Set up our Bottleneck limiter
 		const limiter = new Bottleneck({
@@ -575,6 +746,7 @@ export default {
 		});
 
 		// Update the user's UTC Offset
+		console.log(`Updating UTC Offset. This workflow sets your UTC Offset property in Notion to match the configured timezone in the Trigger step. If you need to change it, you can do so in the Trigger step's Configure tab -> Schedule menu -> Timezone field.`);
 		const utc_offset = await this.setUTCOffset(
 			notion,
 			this.steps.trigger.event.timezone_configured.iso8601.timestamp,
@@ -585,18 +757,30 @@ export default {
 		console.log(utc_offset);
 
 		// Query Notion for completed recurring tasks
+		console.log(`Querying Notion for completed recurring tasks.`)
+		if (config.secondary_done) {
+			console.log(`Secondary Task Status property is set. Checking for tasks that are marked as Done in either the main or secondary Task Status properties.`);
+		} else {
+			console.log(`Secondary Task Status property is not set. Checking for tasks that are marked as Done in the main Task Status property.`);
+		}
 		const completedRecurringTasks = await this.queryNotion(notion, limiter);
 
-		console.log("Completed Recurring Tasks:");
+		console.log(`Found ${completedRecurringTasks.length} Completed Recurring Tasks:`);
 		console.log(completedRecurringTasks);
 
 		// Update the recurring tasks
+		console.log(`Updating recurring tasks in Notion...`);
 		const updatedTasks = await this.updatePages(
 			notion,
 			completedRecurringTasks,
 			limiter
 		);
 
-		return updatedTasks; */
+		console.log("Successfully updated tasks.");
+		const exportedData = {
+			completedRecurringTasks: completedRecurringTasks,
+			updatedTasks: updatedTasks,
+		}
+		return exportedData;
 	},
 };
