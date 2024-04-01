@@ -9,7 +9,7 @@ export default {
 	name: "Notion Recurring Tasks",
 	description: "Recurring Tasks for Ultimate Brain",
 	key: "notion-recurring-tasks",
-	version: "0.1.74",
+	version: "0.1.75",
 	type: "action",
 	props: {
 		instructions: {
@@ -256,11 +256,21 @@ export default {
 		) {
 			helperProps.nextDueAPI.manual = true;
 
-			props.nextDueAPIWarning = {
-				type: "alert",
-				alertType: "warning",
-				content: `Your chosen Target Database does not contain a **Next Due API** formula property. This workflow requires this property to function. If you have renamed it in your database, please set it in the Next Due API Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above.`,
-			};
+			// If the database contains the Smart List property, it's likely Ultimate Brain. Adjust warning to link to the Formulas 2.0 update.
+			if (properties["Smart List"]) {
+				props.nextDueAPIWarning = {
+					type: "alert",
+					alertType: "warning",
+					content: `Your chosen Target Database does not contain a **Next Due API** formula property. This workflow requires this property to function. If you have renamed it in your database, please set it in the Next Due API Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above.\n\nP.S. – It looks like you're using Ultimate Brain. You might be using an older version of the template; if so, you can [upgrade using our Formulas 2.0 guide](https://thomasfrank.notion.site/Formulas-2-0-1b6f3228097e4293993af2f3b9f7c738) in order to add all the needed properties for this workflow.`,
+				};
+			} else {
+				props.nextDueAPIWarning = {
+					type: "alert",
+					alertType: "warning",
+					content: `Your chosen Target Database does not contain a **Next Due API** formula property. This workflow requires this property to function. If you have renamed it in your database, please set it in the Next Due API Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above.`,
+				};
+			}
+			
 
 			props.nextDueAPIProp = {
 				type: "string",
