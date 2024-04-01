@@ -1,14 +1,3 @@
-/**
- * To Do
- * X Update the configs with up-to-date database schema pulled from Notion
- * X Write method to handle status updates
- * X Handle secondary status updates
- * X Add robust logging
- * - Create reusable methods for API calls, scheduling, retrying, and error handling
- * X Export a report about processed tasks; user can add further steps to email this to themselves, send a Slack message, etc
- * X Filter user choices further
- */
-
 import { Client } from "@notionhq/client";
 import Bottleneck from "bottleneck";
 import retry from "async-retry";
@@ -20,13 +9,13 @@ export default {
 	name: "Beta Notion Recurring Tasks",
 	description: "Recurring Tasks for Ultimate Brain",
 	key: "notion-recurring-tasks-beta",
-	version: "0.1.73",
+	version: "0.1.74",
 	type: "action",
 	props: {
 		instructions: {
 			type: "alert",
 			alertType: "info",
-			content: `This workflow adds automatic, hands-off **recurring tasks** to Notion. \n\n**Need help with this workflow? [Check out the full instructions and FAQ here.](https://thomasjfrank.com/notion-automated-recurring-tasks/)**\n\n## Compatibility\n\nThis workflow **only** works with Notion databases that have my recurring task helper formulas:\n\n* [Ultimate Brain for Notion](https://thomasjfrank.com/brain/) – the **ultimate** second brain template for Notion. A completely productivity system that brings tasks, notes, projects, goals, and useful dashboards into one place. *Use code **LETSGO2024** to get $50 off!*\n* [Ultimate Tasks](https://thomasjfrank.com/templates/task-and-project-notion-template/) – my free task manager template, and the best free task manager for Notion.\n* * *Ultimate Brain contains an upgraded version of Ultimate Tasks, adding GTD support, better integration with your notes, and useful dashboards (like the My Day dashboard).*\n* [Recurring Tasks](https://thomasfrank.notion.site/Advanced-Recurring-Task-Dates-2022-20c62e1f755742e789bc77f0c76aa454?pvs=4) – *this is a barebones template intended for learning purposes.*\n\n## Instructions\n\n* Connect your Notion account, then choose your Tasks database and your Due date property.\n* **Set your timezone** in the Trigger step above (Trigger → Configure → Schedule → Timezone).\n* Optional: Adjust the schedule in the Trigger step. By default, this workflow will run once per day at 11:57pm. You can make it run more frequently; just keep [Pipedream's credit limits](https://pipedream.com/pricing) if you're on the free plan. This workflow takes 1 credit per run.\n* Hit **Deploy** to enable the workflow.\n\n**Note:** This automation will automatically change the UTC Offset and Type formula properties in your task database. This helps things run smoothly; you can learn more about why these changes are made [in this reference section](https://thomasjfrank.com/notion-automated-recurring-tasks/#formula-property-changes).\n\n## More Resources\n\n**All My Notion Automations:**\n* [Notion Automations Hub](https://thomasjfrank.com/notion-automations/)\n\n**Want to get notified about updates to this workflow (and about new Notion templates, automations, and tutorials)?**\n* [Join my Notion Tips newsletter](https://thomasjfrank.com/fundamentals/#get-the-newsletter)`,
+			content: `This workflow adds automatic, hands-off **recurring tasks** to Notion. \n\n**Need help with this workflow? [Check out the full instructions and FAQ here.](https://thomasjfrank.com/notion-automated-recurring-tasks/)**\n\nIssues and bugs can be reported at this automation's [Github repo](https://github.com/TomFrankly/pipedream-notion-recurring-tasks/issues).\n\n## Compatibility\n\nThis workflow **only** works with Notion databases that have my recurring task helper formulas:\n\n* [Ultimate Brain for Notion](https://thomasjfrank.com/brain/) – the **ultimate** second brain template for Notion. A completely productivity system that brings tasks, notes, projects, goals, and useful dashboards into one place. *Use code **LETSGO2024** to get $50 off!*\n* [Ultimate Tasks](https://thomasjfrank.com/templates/task-and-project-notion-template/) – my free task manager template, and the best free task manager for Notion.\n* * *Ultimate Brain contains an upgraded version of Ultimate Tasks, adding GTD support, better integration with your notes, and useful dashboards (like the My Day dashboard).*\n* [Recurring Tasks](https://thomasfrank.notion.site/Advanced-Recurring-Task-Dates-2022-20c62e1f755742e789bc77f0c76aa454?pvs=4) – *this is a barebones template intended for learning purposes.*\n\n## Instructions\n\n* Connect your Notion account, then choose your Tasks database and your Due date property.\n* **Set your timezone** in the Trigger step above (Trigger → Configure → Schedule → Timezone).\n* Optional: Adjust the schedule in the Trigger step. By default, this workflow will run once per day at 11:57pm. You can make it run more frequently; just keep [Pipedream's credit limits](https://pipedream.com/pricing) if you're on the free plan. This workflow takes 1 credit per run.\n* Hit **Deploy** to enable the workflow.\n\n**Note:** This automation will automatically change the UTC Offset and Type formula properties in your task database. This helps things run smoothly; you can learn more about why these changes are made [in this reference section](https://thomasjfrank.com/notion-automated-recurring-tasks/#formula-property-changes).\n\n## More Resources\n\n**All My Notion Automations:**\n* [Notion Automations Hub](https://thomasjfrank.com/notion-automations/)\n\n**Want to get notified about updates to this workflow (and about new Notion templates, automations, and tutorials)?**\n* [Join my Notion Tips newsletter](https://thomasjfrank.com/fundamentals/#get-the-newsletter)`,
 		},
 		notion: {
 			type: "app",

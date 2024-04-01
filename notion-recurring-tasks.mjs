@@ -5,17 +5,22 @@ import { DateTime } from "luxon";
 
 const config = {};
 
-export default defineComponent({
+export default {
 	name: "Notion Recurring Tasks",
-	version: "0.1.0",
-	key: "notion-recurring-tasks",
 	description: "Recurring Tasks for Ultimate Brain",
+	key: "notion-recurring-tasks",
+	version: "0.1.74",
 	type: "action",
 	props: {
+		instructions: {
+			type: "alert",
+			alertType: "info",
+			content: `This workflow adds automatic, hands-off **recurring tasks** to Notion. \n\n**Need help with this workflow? [Check out the full instructions and FAQ here.](https://thomasjfrank.com/notion-automated-recurring-tasks/)**\n\nIssues and bugs can be reported at this automation's [Github repo](https://github.com/TomFrankly/pipedream-notion-recurring-tasks/issues).\n\n## Compatibility\n\nThis workflow **only** works with Notion databases that have my recurring task helper formulas:\n\n* [Ultimate Brain for Notion](https://thomasjfrank.com/brain/) – the **ultimate** second brain template for Notion. A completely productivity system that brings tasks, notes, projects, goals, and useful dashboards into one place. *Use code **LETSGO2024** to get $50 off!*\n* [Ultimate Tasks](https://thomasjfrank.com/templates/task-and-project-notion-template/) – my free task manager template, and the best free task manager for Notion.\n* * *Ultimate Brain contains an upgraded version of Ultimate Tasks, adding GTD support, better integration with your notes, and useful dashboards (like the My Day dashboard).*\n* [Recurring Tasks](https://thomasfrank.notion.site/Advanced-Recurring-Task-Dates-2022-20c62e1f755742e789bc77f0c76aa454?pvs=4) – *this is a barebones template intended for learning purposes.*\n\n## Instructions\n\n* Connect your Notion account, then choose your Tasks database and your Due date property.\n* **Set your timezone** in the Trigger step above (Trigger → Configure → Schedule → Timezone).\n* Optional: Adjust the schedule in the Trigger step. By default, this workflow will run once per day at 11:57pm. You can make it run more frequently; just keep [Pipedream's credit limits](https://pipedream.com/pricing) if you're on the free plan. This workflow takes 1 credit per run.\n* Hit **Deploy** to enable the workflow.\n\n**Note:** This automation will automatically change the UTC Offset and Type formula properties in your task database. This helps things run smoothly; you can learn more about why these changes are made [in this reference section](https://thomasjfrank.com/notion-automated-recurring-tasks/#formula-property-changes).\n\n## More Resources\n\n**All My Notion Automations:**\n* [Notion Automations Hub](https://thomasjfrank.com/notion-automations/)\n\n**Want to get notified about updates to this workflow (and about new Notion templates, automations, and tutorials)?**\n* [Join my Notion Tips newsletter](https://thomasjfrank.com/fundamentals/#get-the-newsletter)`,
+		},
 		notion: {
 			type: "app",
 			app: "notion",
-			description: `This workflow adds automatic, hands-off **recurring tasks** to Notion. \n\n**Need help with this workflow? [Check out the full instructions and FAQ here.](https://thomasjfrank.com/notion-automated-recurring-tasks/)**\n\n## Compatibility\n\nThis workflow **only** works with Notion databases that have my recurring task helper formulas:\n\n* [Ultimate Brain for Notion](https://thomasjfrank.com/brain/) – the **ultimate** second brain template for Notion. A completely productivity system that brings tasks, notes, projects, goals, and useful dashboards into one place. *Use code **LETSGO2023** to get $50 off!*\n* [Ultimate Tasks](https://thomasjfrank.com/templates/task-and-project-notion-template/) – my free task manager template, and the best free task manager for Notion. Includes a robust task and project management system with Today, Next 7 Days, and Inbox views, a Project manager, support for recurring tasks and sub-tasks, and more.\n* * *Ultimate Brain contains an upgraded version of Ultimate Tasks, adding GTD support, better integration with your notes, and useful dashboards (like the My Day dashboard).*\n* [Recurring Tasks](https://thomasfrank.notion.site/Advanced-Recurring-Task-Dates-2022-20c62e1f755742e789bc77f0c76aa454?pvs=4) – *this is a barebones template intended for learning purposes.*\n\n## Instructions\n\n* Connect your Notion account, then choose your Tasks database and your Due date property.\n* Adjust the schedule in the trigger step above if you want. By default, it will run this automation once per hour between 6am and midnight each day.\n* Hit **Deploy** to enable the workflow.\n\n### Automatic Changes\n\nThis automation also automatically changes a couple of small settings in your template:\n\n* The **UTC Offset** formula property's value is updated to reflect the timezone set in your **trigger** step above (and it respects Daylight Savings Time when in effect).\n* The **Type** formula property's value is updated so that it always returns "⏳One-Time". This ensures that recurring tasks will disappear from your task views when you mark them as Done.\n\nFor reference, the original for **Type** is "if(empty(prop("Recur Interval")), "⏳One-Time", "🔄Recurring")" (minus the wrapper quotation marks). You'd only want to revert to this formula if you wanted to stop using this automation and [handle recurring tasks manually](https://thomasjfrank.com/notion-automated-recurring-tasks/#completing-recurring-tasks-manually).\n\n## More Resources\n\n**All My Notion Automations:**\n* [Notion Automations Hub](https://thomasjfrank.com/notion-automations/)\n\n**Want to get notified about updates to this workflow (and about new Notion templates, automations, and tutorials)?**\n* [Join my Notion Tips newsletter](https://thomasjfrank.com/fundamentals/#get-the-newsletter)`,
+			description: `Connect your Notion account.`,
 		},
 		databaseID: {
 			type: "string",
@@ -70,11 +75,10 @@ export default defineComponent({
 			reloadProps: true,
 		},
 		steps: {
-			type: "string",
-			default: "{{steps}}",
-			label: "Steps (Don't Change This)",
-			description: `Fancy, technical things.`,
-		}
+			type: "object",
+			label: "Previous Step Data (Set by Default)",
+			description: `This property simply passes data from the previous step(s) in the workflow to this step. It should be pre-filled with a default value of **{{steps}}**, and you shouldn't need to change it.`,
+		},
 	},
 	async additionalProps() {
 		const notion = new Client({
@@ -83,37 +87,62 @@ export default defineComponent({
 		const database = await notion.databases.retrieve({
 			database_id: this.databaseID,
 		});
+
 		const properties = database.properties;
 
-		// Create an array of date props with Due sorted to top
-		const datePropsRaw = Object.keys(properties).filter(
-			(k) => properties[k].type === "date"
-		);
-		const dueProp = datePropsRaw.filter((prop) => prop.includes("Due"));
-		const nonDueProps = datePropsRaw.filter((prop) => !prop.includes("Due"));
-		const dueProps = [...dueProp, ...nonDueProps];
+		const sortByPropName = (props, nameIncludes) =>
+			props.sort((a, b) => {
+				const aIndex = nameIncludes.findIndex((name) => a.includes(name));
+				const bIndex = nameIncludes.findIndex((name) => b.includes(name));
 
-		const formulaPropsRaw = Object.keys(properties).filter(
-			(k) => properties[k].type === "formula"
+				if (aIndex !== -1 && bIndex !== -1) {
+					if (aIndex < bIndex) return -1;
+					if (aIndex > bIndex) return 1;
+				}
+
+				if (aIndex !== -1) return -1;
+				if (bIndex !== -1) return 1;
+
+				return 0;
+			});
+
+		const getPropsWithTypes = (types) =>
+			Object.keys(properties).filter((k) => types.includes(properties[k].type));
+
+		const dueProps = sortByPropName(getPropsWithTypes(["date"]), ["Due"]);
+		const nextDueAPIProps = sortByPropName(getPropsWithTypes(["formula"]), [
+			"Next Due API",
+		]);
+		const utcOffsetFormulaProps = sortByPropName(getPropsWithTypes(["formula"]), [
+			"UTC Offset",
+		]);
+		const typeProps = sortByPropName(getPropsWithTypes(["formula"]), ["Type"]);
+		const doneCheckboxProps = sortByPropName(
+			getPropsWithTypes(["checkbox", "status"]),
+			["Status", "Kanban Status", "Done"]
 		);
-		const nextDueAPIProp = formulaPropsRaw.filter((prop) => prop.includes("Next Due API"));
-		const nonNextDueAPIProps = formulaPropsRaw.filter((prop) => !prop.includes("Next Due API"));
-		const nextDueAPIProps = [...nextDueAPIProp, ...nonNextDueAPIProps];
-		const utcOffsetProp = formulaPropsRaw.filter((prop) => prop.includes("UTC Offset"));
-		const nonUtcOffsetProps = formulaPropsRaw.filter((prop) => !prop.includes("UTC Offset"));
-		const utcOffsetFormulaProps = [...utcOffsetProp, ...nonUtcOffsetProps];
-		const typeProp = formulaPropsRaw.filter((prop) => prop.includes("Type"));
-		const nonTypeProps = formulaPropsRaw.filter((prop) => !prop.includes("Type"));
-		const typeProps = [...typeProp, ...nonTypeProps];
-	
-		const checkboxPropsRaw = Object.keys(properties).filter(
-			(k) => properties[k].type === "checkbox"
-		);
-		
-		const doneProp = checkboxPropsRaw.filter((prop) => prop.includes("Next Due"));
-		const nonDoneProps = checkboxPropsRaw.filter((prop) => !prop.includes("Next Due"));
-		const doneCheckboxProps = [...doneProp, ...nonDoneProps];
-	
+
+		// Identify and verify helper props
+		const helperProps = {
+			nextDueAPI: {
+				name: "Next Due API",
+				type: "formula",
+				expression: "∅",
+				manual: false,
+			},
+			type: {
+				name: "Type",
+				type: "formula",
+				expression: `⏳One-Time`,
+				manual: false,
+			},
+			utcOffset: {
+				name: "UTC Offset",
+				type: "formula",
+				manual: false,
+			},
+		};
+
 		const props = {
 			dueProp: {
 				type: "string",
@@ -121,63 +150,204 @@ export default defineComponent({
 				description: `Select the **Due** date property for your tasks. If you've renamed this property, choose that one instead.`,
 				options: dueProps.map((prop) => ({
 					label: prop,
-					value: JSON.stringify({ name: prop, id: properties[prop].id }),
-				})),
-				optional: false,
-			},
-			nextDueAPIProp: {
-				type: "string",
-				label: "Next Due API Property",
-				description: `Select the **Next Due API** property from your Tasks Database.\n\nThis property contains information about the next due date, formatted specifically for this workflow, and will be used to set the new Due date for the task. If you've renamed this property, choose that one instead.\n\n`,
-				options: nextDueAPIProps.map((prop) => ({
-					label: prop,
-					value: JSON.stringify({ name: prop, id: properties[prop].id }),
-				})),
-				optional: false,
-			},
-			utcOffsetProp: {
-				type: "string",
-				label: "UTC Offset",
-				description: `Select the **UTC Offset** property from your Tasks Database.\n\nThis property contains information about your time zone, and it's updated automatically based on the time zone you chose for this Pipedream workflow. If you've renamed this property, choose that one instead.\n\n`,
-				options: utcOffsetFormulaProps.map((prop) => ({
-					label: prop,
-					value: JSON.stringify({ name: prop, id: properties[prop].id }),
+					value: JSON.stringify({
+						name: prop,
+						id: properties[prop].id,
+						type: properties[prop].type,
+					}),
 				})),
 				optional: false,
 			},
 			doneProp: {
 				type: "string",
-				label: "Done",
-				description: `Select the **Done** property from your Tasks Database.\n\nThis property marks whether your task is currently finished. If you've renamed this property, choose that one instead.\n\n`,
+				label: "Task Status Property",
+				description: `Select the primary property you use for tracking the status of your tasks. This property should be a **Status** or **Checkbox** property. If you have multiple properties that track task status, choose the one you actually use to track your recurring tasks.\n\n`,
 				options: doneCheckboxProps.map((prop) => ({
-					label: prop,
-					value: JSON.stringify({ name: prop, id: properties[prop].id }),
+					label: `${prop} - (Type: ${properties[prop].type})`,
+					value: JSON.stringify({
+						name: prop,
+						id: properties[prop].id,
+						type: properties[prop].type,
+					}),
 				})),
 				optional: false,
+				reloadProps: true,
 			},
-			typeProp: {
+			...(this.doneProp &&
+				JSON.parse(this.doneProp).type === "status" && {
+					donePropStatusNotStarted: {
+						type: "string",
+						label: `"Not Started" Task Status Option`,
+						description: `Select the option from your chosen Status property that represents a value of "Not Started".\n\nThis is the option that your tasks will be set back to when this automation runs and processes you completed recurring tasks. This option is called **Not Started** by default, or **To Do** in Ultimate Brain; if you've renamed this option, choose that one instead.\n\n`,
+						options: properties[JSON.parse(this.doneProp).name].status.options.map(
+							(option) => ({
+								label: option.name,
+								value: JSON.stringify(option),
+							})
+						),
+						optional: false,
+					},
+					donePropStatusCompleted: {
+						type: "string",
+						label: `"Done" Task Status Option`,
+						description: `Select the option from your chosen Status property that represents a value of "Done".\n\nThis is the option that you'll set your tasks to in order to *complete* them. This workflow will only process tasks that are currently set to this option.\n\nThis option is called **Done** by default; if you've renamed this option, choose that one instead.\n\n`,
+						options: properties[JSON.parse(this.doneProp).name].status.options.map(
+							(option) => ({
+								label: option.name,
+								value: JSON.stringify(option),
+							})
+						),
+						optional: false,
+					},
+				}),
+			...(this.doneProp && {
+				secondaryDoneProp: {
+					type: "string",
+					label: "(Optional) Secondary Task Status Property",
+					description: `If you have another property used for tracking task status that you'd like this automation to check and reset, choose it here\n\nMost users do not need to set this property. It exists only for users who are using versions of Ultimate Brain or Ultimate Tasks that use both the **Done** (checkbox) and **Kanban Status** (status) properties to track task status. \n\nEven if your template has both of these, you'll only need to set this property if you're using both properties to track recurring tasks.`,
+					options: doneCheckboxProps.map((prop) => ({
+						label: `${prop} - (Type: ${properties[prop].type})`,
+						value: JSON.stringify({
+							name: prop,
+							id: properties[prop].id,
+							type: properties[prop].type,
+						}),
+					})),
+					optional: true,
+					reloadProps: true,
+				},
+			}),
+			...(this.secondaryDoneProp &&
+				JSON.parse(this.secondaryDoneProp).type === "status" && {
+					secondaryDonePropStatusNotStarted: {
+						type: "string",
+						label: `"Not Started" Secondary Task Status Option`,
+						description: `Select the option from your chosen Status property that represents a value of "Not Started".\n\nThis is the option that your tasks will be set back to when this automation runs and processes you completed recurring tasks. This option is called **Not Started** by default, or **To Do** in Ultimate Brain; if you've renamed this option, choose that one instead.\n\n`,
+						options: properties[
+							JSON.parse(this.secondaryDoneProp).name
+						].status.options.map((option) => ({
+							label: option.name,
+							value: JSON.stringify(option),
+						})),
+						optional: false,
+					},
+					secondaryDonePropStatusCompleted: {
+						type: "string",
+						label: `"Done" Secondary Task Status Option`,
+						description: `Select the option from your chosen Status property that represents a value of "Done".\n\nThis is the option that you'll set your tasks to in order to *complete* them. This workflow will only process tasks that are currently set to this option.\n\nThis option is called **Done** by default; if you've renamed this option, choose that one instead.\n\n`,
+						options: properties[
+							JSON.parse(this.secondaryDoneProp).name
+						].status.options.map((option) => ({
+							label: option.name,
+							value: JSON.stringify(option),
+						})),
+						optional: false,
+					},
+				}),
+		};
+
+		if (
+			!properties[helperProps.nextDueAPI.name] ||
+			properties[helperProps.nextDueAPI.name].type !==
+				helperProps.nextDueAPI.type ||
+			!properties[helperProps.nextDueAPI.name].formula.expression.includes(
+				helperProps.nextDueAPI.expression
+			)
+		) {
+			helperProps.nextDueAPI.manual = true;
+
+			props.nextDueAPIWarning = {
+				type: "alert",
+				alertType: "warning",
+				content: `Your chosen Target Database does not contain a **Next Due API** formula property. This workflow requires this property to function. If you have renamed it in your database, please set it in the Next Due API Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above.`,
+			};
+
+			props.nextDueAPIProp = {
 				type: "string",
-				label: "Type",
+				label: "Next Due API Property",
+				description: `Select the **Next Due API** property from your Tasks Database.\n\nThis property contains information about the next due date, formatted specifically for this workflow, and will be used to set the new Due date for the task. If you've renamed this property, choose that one instead.\n\n`,
+				options: nextDueAPIProps.map((prop) => ({
+					label: `${prop} - (Type: ${properties[prop].type})`,
+					value: JSON.stringify({
+						name: prop,
+						id: properties[prop].id,
+						type: properties[prop].type,
+					}),
+				})),
+				optional: false,
+			};
+		}
+
+		if (
+			!properties[helperProps.type.name] ||
+			properties[helperProps.type.name].type !== helperProps.type.type ||
+			!properties[helperProps.type.name].formula.expression.includes(
+				helperProps.type.expression
+			)
+		) {
+			helperProps.type.manual = true;
+
+			props.typeWarning = {
+				type: "alert",
+				alertType: "warning",
+				content: `Your chosen Target Database does not contain a **Type** formula property. This workflow requires this property to function. If you have renamed it in your database, please set it in the Type Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above.`,
+			};
+
+			props.typeProp = {
+				type: "string",
+				label: "Type Property",
 				description: `Select the **Type** property from your Tasks Database.\n\nThis property marks whether a task is recurring for manual recurring tasks, but this automation will automatically set it up for use with automated recurring tasks. If you've renamed this property, choose that one instead.\n\n`,
 				options: typeProps.map((prop) => ({
-					label: prop,
-					value: JSON.stringify({ name: prop, id: properties[prop].id }),
+					label: `${prop} - (Type: ${properties[prop].type})`,
+					value: JSON.stringify({
+						name: prop,
+						id: properties[prop].id,
+						type: properties[prop].type,
+					}),
 				})),
 				optional: false,
-			},
-		};
-		
+			};
+		}
+
+		if (
+			!properties[helperProps.utcOffset.name] ||
+			properties[helperProps.utcOffset.name].type !== helperProps.utcOffset.type
+		) {
+			helperProps.utcOffset.manual = true;
+
+			props.utcOffsetWarning = {
+				type: "alert",
+				alertType: "warning",
+				content: `Your chosen Target Database does not contain a **UTC Offset** formula property. This workflow requires this property to function. If you have renamed it in your database, please set it in the UTC Offset Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above.`,
+			};
+
+			props.utcOffsetProp = {
+				type: "string",
+				label: "UTC Offset Property",
+				description: `Select the **UTC Offset** property from your Tasks Database.\n\nThis property contains information about your time zone, and it's updated automatically based on the time zone you chose for this Pipedream workflow. If you've renamed this property, choose that one instead.\n\n`,
+				options: utcOffsetFormulaProps.map((prop) => ({
+					label: `${prop} - (Type: ${properties[prop].type})`,
+					value: JSON.stringify({
+						name: prop,
+						id: properties[prop].id,
+						type: properties[prop].type,
+					}),
+				})),
+				optional: false,
+			};
+		}
+
 		return props;
 	},
 	methods: {
 		async setUTCOffset(notion, timestamp, limiter) {
 			// Set the date and get the UTC offset
-			const date = DateTime.fromISO(timestamp, {setZone: true});
-			console.log(date)
+			const date = DateTime.fromISO(timestamp, { setZone: true });
+			console.log(date);
 			const offsetNum = date.offset / 60;
-			const offset = offsetNum.toString()
+			const offset = offsetNum.toString();
 
-			console.log(`User-set workflow UTC offset is ${offset}.`)
+			console.log(`User-set workflow UTC offset is ${offset}.`);
 
 			// Handle 429 errors
 			limiter.on("error", (error) => {
@@ -190,11 +360,11 @@ export default defineComponent({
 						? parseInt(error.headers["retry-after"], 10)
 						: 0.4;
 					console.log(`Retrying after ${waitTime} seconds...`);
-					
+
 					return waitTime * 1000;
 				}
 				console.log(`Job ${jobInfo.options.id} failed: ${error}`);
-				
+
 				// Don't retry via limiter if it's not a 429
 				return;
 			});
@@ -207,36 +377,28 @@ export default defineComponent({
 								database_id: this.databaseID,
 								properties: {
 									[config.utcOffset.name]: {
-											formula: {
-													expression: `${offset}`,
-											}
+										formula: {
+											expression: `${offset}`,
+										},
 									},
 									[config.type.name]: {
 										formula: {
-											expression: `if(empty(prop("Recur Interval")), "⏳One-Time", "⏳One-Time")`
-										}
-									}
-								}
+											expression: `if(empty(prop("Recur Interval")), "⏳One-Time", "⏳One-Time")`,
+										},
+									},
+								},
 							})
 						);
 
-						return resp
+						return resp;
 					} catch (error) {
 						if (400 <= error.status && error.status <= 409) {
-							// Don't retry for errors 400-409
+							console.log("Error updating UTC Offset:", error);
 							bail(error);
-							return;
-						}
-						if (
-							error.status === 500 ||
-							error.status === 503 ||
-							error.status === 504
-						) {
-							// Retry on 500, 503, and 504
+						} else {
+							console.log("Error updating UTC Offset:", error);
 							throw error;
 						}
-						// Don't retry for other errors
-						bail(error);
 					}
 				},
 				{
@@ -248,6 +410,169 @@ export default defineComponent({
 					},
 				}
 			);
+		},
+		async updateSchema(notion) {
+			// Get the database schema
+			const response = await retry(
+				async (bail) => {
+					try {
+						const resp = await notion.databases.retrieve({
+							database_id: this.databaseID,
+						});
+
+						return resp;
+					} catch (error) {
+						if (400 <= error.status && error.status <= 409) {
+							console.log("Error retrieving database:", error);
+							bail(error);
+						} else {
+							console.log("Error retrieving database:", error);
+							throw error;
+						}
+					}
+				},
+				{
+					retries: 5,
+					onRetry: (error) =>
+						console.log("Retrying Notion database retrieval:", error),
+				}
+			);
+
+			// Ensure the status option names are up-to-date
+			if (config.done.type === "status") {
+				console.log(
+					`Current Done Status Options: ${config.done.not_started.name} (for Not Started) and ${config.done.completed.name} (for Done). Checking the database for the most up-to-date status option names...`
+				);
+				const statusProp = response.properties[config.done.name];
+
+				console.log(`Done Status Property from datbase:`);
+				console.dir(statusProp);
+
+				config.done.not_started.name = statusProp.status.options.find(
+					(option) => option.id === config.done.not_started.id
+				).name;
+
+				config.done.completed.name = statusProp.status.options.find(
+					(option) => option.id === config.done.completed.id
+				).name;
+
+				console.log(
+					`Updated Done Status Options: ${config.done.not_started.name} (for Not Started) and ${config.done.completed.name} (for Done).`
+				);
+			}
+
+			if (config.secondary_done && config.secondary_done.type === "status") {
+				console.log(`Current Secondary Done Status Options: ${config.secondary_done.not_started.name} (for Not Started) and ${config.secondary_done.completed.name} (for Done).
+			
+			Checking the database for the most up-to-date status option names...`);
+				const statusProp = response.properties[config.secondary_done.name];
+
+				console.log(`Secondary Done Status Property from datbase:`);
+				console.dir(statusProp);
+
+				config.secondary_done.not_started.name = statusProp.status.options.find(
+					(option) => option.id === config.secondary_done.not_started.id
+				).name;
+
+				config.secondary_done.completed.name = statusProp.status.options.find(
+					(option) => option.id === config.secondary_done.completed.id
+				).name;
+
+				console.log(
+					`Updated Secondary Done Status Options: ${config.secondary_done.not_started.name} (for Not Started) and ${config.secondary_done.completed.name} (for Done).`
+				);
+			}
+
+			// Set the Next Due API property
+			if (this.nextDueAPIProp) {
+				console.log(
+					`Setting the Next Due API property to user-set property: ${this.nextDueAPIProp}.`
+				);
+				config.nextDueAPI = JSON.parse(this.nextDueAPIProp);
+			} else {
+				if (
+					!response.properties["Next Due API"] ||
+					response.properties["Next Due API"].type !== "formula"
+				) {
+					throw new Error(
+						`Error: Your target database is missing the "Next Due API" property. This workflow requires this to function, and it must be a formula-type property. If you have renamed it in your database, please click "Refresh Fields" at the bottom of the Configure tab above, then set the "Next Due API Property" field manually. If your database does not contain this property, please use one of the templates listed in the "Compatibility" section in the instructions above.`
+					);
+				}
+
+				console.log(
+					`Setting the Next Due API property to matched property from the Notion database: ${JSON.stringify(
+						response.properties["Next Due API"]
+					)}.`
+				);
+
+				config.nextDueAPI = {
+					id: response.properties["Next Due API"].id,
+					name: "Next Due API",
+					type: "formula",
+				};
+			}
+
+			// Set the Type property
+			if (this.typeProp) {
+				console.log(
+					`Setting the Type property to user-set property: ${this.typeProp}.`
+				);
+				config.type = JSON.parse(this.typeProp);
+			} else {
+				if (
+					!response.properties["Type"] ||
+					response.properties["Type"].type !== "formula"
+				) {
+					throw new Error(
+						`Error: Your target database is missing the "Type" property. This workflow requires this to function, and it must be a formula-type property. If you have renamed it in your database, please click "Refresh Fields" at the bottom of the Configure tab above, then set the "Type Property" field manually. If your database does not contain this property, please use one of the templates listed in the "Compatibility" section in the instructions above.`
+					);
+				}
+
+				console.log(
+					`Setting the Type property to matched property from the Notion database: ${JSON.stringify(
+						response.properties["Type"]
+					)}.`
+				);
+
+				config.type = {
+					id: response.properties["Type"].id,
+					name: "Type",
+					type: "formula",
+				};
+			}
+
+			// Set the UTC Offset property
+			if (this.utcOffsetProp) {
+				console.log(
+					`Setting the UTC Offset property to user-set property: ${this.utcOffsetProp}.`
+				);
+				config.utcOffset = JSON.parse(this.utcOffsetProp);
+			} else {
+				if (
+					!response.properties["UTC Offset"] ||
+					response.properties["UTC Offset"].type !== "formula"
+				) {
+					throw new Error(
+						`Error: Your target database is missing the "UTC Offset" property. This workflow requires this to function, and it must be a formula-type property. If you have renamed it in your database, please click "Refresh Fields" at the bottom of the Configure tab above, then set the "UTC Offset Property" field manually. If your database does not contain this property, please use one of the templates listed in the "Compatibility" section in the instructions above.`
+					);
+				}
+
+				console.log(
+					`Setting the UTC Offset property to matched property from the Notion database: ${JSON.stringify(
+						response.properties["UTC Offset"]
+					)}.`
+				);
+
+				config.utcOffset = {
+					id: response.properties["UTC Offset"].id,
+					name: "UTC Offset",
+					type: "formula",
+				};
+			}
+
+			// Logging the config once again
+			console.log(`Schema update successful. Final Configs:`);
+			console.dir(config);
 		},
 		async queryNotion(notion, limiter) {
 			// Pagination variables
@@ -265,11 +590,11 @@ export default defineComponent({
 						? parseInt(error.headers["retry-after"], 10)
 						: 0.4;
 					console.log(`Retrying after ${waitTime} seconds...`);
-					
+
 					return waitTime * 1000;
 				}
 				console.log(`Job ${jobInfo.options.id} failed: ${error}`);
-				
+
 				// Don't retry via limiter if it's not a 429
 				return;
 			});
@@ -277,34 +602,87 @@ export default defineComponent({
 			let rows = [];
 			// Query the Notion API until hasMore == false. Add all results to the rows array
 			while (hasMore == undefined || hasMore == true) {
+				// Define the "done" filter parameter based on the config
+				let doneFilter = {};
+				if (config.done.type === "checkbox") {
+					doneFilter = {
+						property: config.done.name,
+						checkbox: {
+							equals: true,
+						},
+					};
+				} else if (config.done.type === "status") {
+					doneFilter = {
+						property: config.done.name,
+						status: {
+							equals: config.done.completed.name,
+						},
+					};
+				}
+
+				console.log(`Done filter:`);
+				console.dir(doneFilter);
+
+				// Define the "secondary done" filter parameter based on the config
+				let secondaryDoneFilter = {};
+				if (config.secondary_done) {
+					if (config.secondary_done.type === "checkbox") {
+						secondaryDoneFilter = {
+							property: config.secondary_done.name,
+							checkbox: {
+								equals: true,
+							},
+						};
+					} else if (config.secondary_done.type === "status") {
+						secondaryDoneFilter = {
+							property: config.secondary_done.name,
+							status: {
+								equals: config.secondary_done.completed.name,
+							},
+						};
+					}
+
+					console.log(`Secondary Done filter:`);
+					console.dir(secondaryDoneFilter);
+				}
+
+				// Create the "OR" array for "done" and "secondary done" filters
+				let orArray = [doneFilter];
+				if (config.secondary_done) {
+					orArray.push(secondaryDoneFilter);
+				}
+
+				console.log(`OR array:`);
+				console.dir(orArray);
+
+				const params = {
+					database_id: this.databaseID,
+					//filter_properties: [config.due.id, config.nextDueAPI.id],
+					page_size: 100,
+					start_cursor: token,
+					filter: {
+						and: [
+							{
+								or: orArray,
+							},
+							{
+								property: config.nextDueAPI.name,
+								formula: {
+									string: {
+										does_not_equal: "∅",
+									},
+								},
+							},
+						],
+					},
+				};
+
+				console.log(`Querying Notion database with params:`);
+				console.dir(params);
+
 				await retry(
 					async (bail) => {
 						try {
-							const params = {
-								database_id: this.databaseID,
-								filter_properties: [config.due.id, config.nextDueAPI.id],
-								page_size: 100,
-								start_cursor: token,
-								filter: {
-									and: [
-										{
-											property: config.done.name,
-											checkbox: {
-												equals: true,
-											},
-										},
-										{
-											property: config.nextDueAPI.name,
-											formula: {
-												string: {
-													does_not_equal: "∅",
-												},
-											},
-										},
-									],
-								},
-							};
-
 							const resp = await limiter.schedule(() =>
 								notion.databases.query(params)
 							);
@@ -315,20 +693,12 @@ export default defineComponent({
 							}
 						} catch (error) {
 							if (400 <= error.status && error.status <= 409) {
-								// Don't retry for errors 400-409
+								console.log("Error querying Notion database:", error);
 								bail(error);
-								return;
-							}
-							if (
-								error.status === 500 ||
-								error.status === 503 ||
-								error.status === 504
-							) {
-								// Retry on 500, 503, and 504
+							} else {
+								console.log("Error querying Notion database:", error);
 								throw error;
 							}
-							// Don't retry for other errors
-							bail(error);
 						}
 					},
 					{
@@ -339,7 +709,7 @@ export default defineComponent({
 					}
 				);
 			}
-			
+
 			return rows.flat();
 		},
 		async updatePages(notion, pages, limiter) {
@@ -357,7 +727,7 @@ export default defineComponent({
 					return waitTime * 1000;
 				}
 				console.log(`Job ${jobInfo.options.id} failed: ${error}`);
-				
+
 				// Don't retry via limiter if it's not a 429
 				return;
 			});
@@ -373,31 +743,77 @@ export default defineComponent({
 				// Get the current Due date
 				const due = page.properties[config.due.name].date.start;
 				const nextDueAPI = page.properties[config.nextDueAPI.name].formula.string;
-				const startDate = JSON.parse(nextDueAPI)['start'];
-				const endDate = (JSON.parse(nextDueAPI)['end'] == startDate) ? null : JSON.parse(nextDueAPI)['end'];
-				
+				const startDate = JSON.parse(nextDueAPI)["start"];
+				const endDate =
+					JSON.parse(nextDueAPI)["end"] == startDate
+						? null
+						: JSON.parse(nextDueAPI)["end"];
+
 				console.log(`Current Due value: ${due}`);
 				console.log(`Current Next Due API value: ${nextDueAPI}`);
+
+				// Define the "Done" type and values
+				let doneType = config.done.type;
+				console.log(`Done type: ${doneType}`);
+				let doneObject = {};
+				if (doneType === "checkbox") {
+					doneObject = {
+						checkbox: false,
+					};
+				} else if (doneType === "status") {
+					doneObject = {
+						status: {
+							name: config.done.not_started.name,
+						},
+					};
+				}
+
+				console.log(`Done object:`);
+				console.dir(doneObject);
+
+				// Set up "Secondary Done" type and values if needed
+				let secondaryDoneObject = {};
+				if (config.secondary_done) {
+					let secondaryDoneType = config.secondary_done.type;
+					console.log(`Secondary Done type: ${secondaryDoneType}`);
+					if (secondaryDoneType === "checkbox") {
+						secondaryDoneObject = {
+							[config.secondary_done.name]: {
+								checkbox: false,
+							},
+						};
+					} else if (secondaryDoneType === "status") {
+						secondaryDoneObject = {
+							[config.secondary_done.name]: {
+								status: {
+									name: config.secondary_done.not_started.name,
+								},
+							},
+						};
+					}
+				}
+
+				const params = {
+					page_id: page.id,
+					properties: {
+						[config.done.name]: doneObject,
+						[config.due.name]: {
+							date: {
+								start: startDate,
+								end: endDate,
+							},
+						},
+						...(config.secondary_done && secondaryDoneObject),
+					},
+				};
+
+				console.log(`Update params:`);
+				console.dir(params);
 
 				await retry(
 					async (bail) => {
 						try {
-							const resp = await limiter.schedule(() =>
-								notion.pages.update({
-									page_id: page.id,
-									properties: {
-										[config.done.name]: {
-											checkbox: false,
-										},
-										[config.due.name]: {
-											date: {
-												start: startDate,
-												end: endDate,
-											},
-										},
-									},
-								})
-							);
+							const resp = await limiter.schedule(() => notion.pages.update(params));
 
 							resultsArray.push(resp);
 						} catch (error) {
@@ -434,18 +850,45 @@ export default defineComponent({
 	},
 	async run({ $ }) {
 		// Set the configs
+		console.log(
+			`Setting up configs (helper configs will be set in the Schema Update step)...`
+		);
 		config.due = JSON.parse(this.dueProp);
-		config.nextDueAPI = JSON.parse(this.nextDueAPIProp);
-		config.utcOffset = JSON.parse(this.utcOffsetProp);
 		config.done = JSON.parse(this.doneProp);
-		config.type = JSON.parse(this.typeProp);
-		
-		console.log(config);
+		if (this.donePropStatusNotStarted) {
+			config.done.not_started = JSON.parse(this.donePropStatusNotStarted);
+		}
+		if (this.donePropStatusCompleted) {
+			config.done.completed = JSON.parse(this.donePropStatusCompleted);
+		}
+		if (this.secondaryDoneProp) {
+			config.secondary_done = JSON.parse(this.secondaryDoneProp);
+			if (this.secondaryDonePropStatusNotStarted) {
+				config.secondary_done.not_started = JSON.parse(
+					this.secondaryDonePropStatusNotStarted
+				);
+			}
+			if (this.secondaryDonePropStatusCompleted) {
+				config.secondary_done.completed = JSON.parse(
+					this.secondaryDonePropStatusCompleted
+				);
+			}
+		}
 
-		// Query the chosen tasks database for completed recurring tasks
+		console.log(
+			`Initial configs, based on user's configured properties here in Pipedream:`
+		);
+		console.dir(config);
+
+		// Set up our Notion client
+		console.log(`Setting up Notion client...`);
 		const notion = new Client({
 			auth: this.notion.$auth.oauth_access_token,
 		});
+
+		// Update the schema
+		console.log(`Updating schema for status-type props, if set...`);
+		await this.updateSchema(notion);
 
 		// Set up our Bottleneck limiter
 		const limiter = new Bottleneck({
@@ -454,24 +897,114 @@ export default defineComponent({
 		});
 
 		// Update the user's UTC Offset
-		const utc_offset = await this.setUTCOffset(notion, this.steps.trigger.event.timezone_configured.iso8601.timestamp, limiter)
+		console.log(
+			`Updating UTC Offset. This workflow sets your UTC Offset property in Notion to match the configured timezone in the Trigger step. If you need to change it, you can do so in the Trigger step's Configure tab -> Schedule menu -> Timezone field.`
+		);
+		const utc_offset = await this.setUTCOffset(
+			notion,
+			this.steps.trigger.event.timezone_configured.iso8601.timestamp,
+			limiter
+		);
 
-		console.log("Updated UTC offset.")
-		console.log(utc_offset)
+		console.log(
+			`Updated UTC offset to ${
+				utc_offset.properties[config.utcOffset.name].formula.expression
+			}, matching workflow's timezone setting: ${
+				this.steps.trigger.event.timezone_configured.timezone
+			}`
+		);
 
 		// Query Notion for completed recurring tasks
+		console.log(`Querying Notion for completed recurring tasks.`);
+		if (config.secondary_done) {
+			console.log(
+				`Secondary Task Status property is set. Checking for tasks that are marked as Done in either the main or secondary Task Status properties.`
+			);
+		} else {
+			console.log(
+				`Secondary Task Status property is not set. Checking for tasks that are marked as Done in the main Task Status property.`
+			);
+		}
 		const completedRecurringTasks = await this.queryNotion(notion, limiter);
 
-		console.log("Completed Recurring Tasks:");
+		console.log(
+			`Found ${completedRecurringTasks.length} Completed Recurring Tasks:`
+		);
 		console.log(completedRecurringTasks);
 
 		// Update the recurring tasks
+		console.log(`Updating recurring tasks in Notion...`);
 		const updatedTasks = await this.updatePages(
 			notion,
 			completedRecurringTasks,
 			limiter
 		);
 
-		return updatedTasks;
+		console.log("Successfully updated tasks.");
+		const exportedData = {
+			completedRecurringTasks: completedRecurringTasks,
+			updatedTasks: updatedTasks,
+		};
+
+		if (updatedTasks.length === 0) {
+			$.export("$summary", `Found no tasks to update.`)
+			$.export("Workflow Report", {
+				markdown: `Notion Recurring Tasks Report:
+			
+				Found no tasks to update.`,
+				slack: `Notion Recurring Tasks Report:
+			
+				Found no tasks to update.`,
+			});
+		} else {
+			$.export(
+				"$summary",
+				`Successfully updated ${updatedTasks.length} tasks.`
+			)
+			$.export(
+				"Workflow Report",
+				{
+					markdown: `Notion Recurring Tasks Report:
+				
+Successfully updated ${updatedTasks.length} tasks:
+			
+${updatedTasks
+	.map((task) => {
+		const taskTitle = Object.entries(task.properties).find(
+			([key, value]) => value.type === "title"
+		)?.[0];
+		return (
+			"- [" +
+			task.properties[taskTitle].title[0].text.content +
+			"](" +
+			task.url +
+			") (Next Due: " +
+			task.properties[config.due.name].date.start +
+			")"
+		);
+	})
+	.join("\n")}`,
+					slack: `Notion Recurring Tasks Report:
+				
+Successfully updated ${updatedTasks.length} tasks:
+			
+${updatedTasks
+	.map((task) => {
+		const taskTitle = Object.entries(task.properties).find(
+			([key, value]) => value.type === "title"
+		)?.[0];
+		return (
+			"- <" +
+			task.url + "|" + task.properties[taskTitle].title[0].text.content +
+			"> (Next Due: " +
+			task.properties[config.due.name].date.start +
+			")"
+		);
+	})
+	.join("\n")}`,
+				}
+);
+		}
+		return exportedData;
 	},
-});
+};
