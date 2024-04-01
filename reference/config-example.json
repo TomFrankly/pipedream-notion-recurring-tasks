@@ -1,0 +1,56 @@
+{
+	"due": {
+		"name": "Due",
+		"id": "bl%3D%3B",
+		"type": "date"
+	},
+	"nextDueAPI": {
+		"name": "Next Due API",
+		"id": "CcS%5E",
+		"type": "formula"
+	},
+	"utcOffset": {
+		"name": "UTC Offset",
+		"id": "z%3AMU",
+		"type": "formula"
+	},
+	"done": {
+		"name": "Kanban Status",
+		"id": "xkX~",
+		"type": "status"
+	},
+	"doneStatusNotStarted": {
+		"id": "2cc623d0-c50b-48d9-a6f8-d508e2d534d3",
+		"name": "To Do",
+		"color": "red",
+		"description": null
+	},
+	"doneStatusCompleted": {
+		"id": "3d9b6b8a-289f-4812-afc2-eda517af5f73",
+		"name": "Done",
+		"color": "green",
+		"description": null
+	},
+	"type": {
+		"name": "Type",
+		"id": "anYj",
+		"type": "formula"
+	},
+	"secondaryDone": {
+		"name": "Priority",
+		"id": "%3E%3DOL",
+		"type": "status"
+	},
+	"secondaryDoneStatusNotStarted": {
+		"id": "7d434269-38f7-425c-a3f8-41de41a867a8",
+		"name": "🧊 Low",
+		"color": "orange",
+		"description": null
+	},
+	"secondaryDoneStatusCompleted": {
+		"id": "7d434269-38f7-425c-a3f8-41de41a867a8",
+		"name": "🧊 Low",
+		"color": "orange",
+		"description": null
+	}
+}

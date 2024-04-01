@@ -1,0 +1,720 @@
+{
+	"object": "database",
+	"id": "d1b18b06-b76a-4c68-bf9e-d565b40378f6",
+	"cover": null,
+	"icon": {
+		"type": "external",
+		"external": {
+			"url": "https://www.notion.so/icons/checkmark_red.svg"
+		}
+	},
+	"created_time": "2024-03-22T17:48:00.000Z",
+	"created_by": {
+		"object": "user",
+		"id": "01b92c2b-5a38-495d-a82b-922f47b3a308"
+	},
+	"last_edited_by": {
+		"object": "user",
+		"id": "37c53b0f-c181-4f36-9ebe-c503b56cdc32"
+	},
+	"last_edited_time": "2024-03-31T13:58:00.000Z",
+	"title": [
+		{
+			"type": "text",
+			"text": {
+				"content": "All Tasks [T]",
+				"link": null
+			},
+			"annotations": {
+				"bold": false,
+				"italic": false,
+				"strikethrough": false,
+				"underline": false,
+				"code": false,
+				"color": "default"
+			},
+			"plain_text": "All Tasks [T]",
+			"href": null
+		}
+	],
+	"description": [
+		{
+			"type": "text",
+			"text": {
+				"content": "This is the \"master database\" that runs the entire template. All other views contain Linked Database blocks that link back to this master task list. Typically you won't need to use this view, unless you want to see every single task in your workspace.",
+				"link": null
+			},
+			"annotations": {
+				"bold": false,
+				"italic": false,
+				"strikethrough": false,
+				"underline": false,
+				"code": false,
+				"color": "default"
+			},
+			"plain_text": "This is the \"master database\" that runs the entire template. All other views contain Linked Database blocks that link back to this master task list. Typically you won't need to use this view, unless you want to see every single task in your workspace.",
+			"href": null
+		}
+	],
+	"is_inline": false,
+	"properties": {
+		"Edited": {
+			"id": "%3A%60BZ",
+			"name": "Edited",
+			"type": "last_edited_time",
+			"last_edited_time": {}
+		},
+		"Priority": {
+			"id": "%3E%3DOL",
+			"name": "Priority",
+			"type": "status",
+			"status": {
+				"options": [
+					{
+						"id": "0ff3e4b4-0148-4bf3-8d44-f3e16d68ea2c",
+						"name": "🧀 Medium",
+						"color": "green",
+						"description": null
+					},
+					{
+						"id": "d33393d6-deb7-4d37-8141-e93e4e69c88e",
+						"name": "🚨HIGH",
+						"color": "blue",
+						"description": null
+					},
+					{
+						"id": "7d434269-38f7-425c-a3f8-41de41a867a8",
+						"name": "🧊 Low",
+						"color": "orange",
+						"description": null
+					}
+				],
+				"groups": [
+					{
+						"id": "3d23a818-faae-47ae-8623-d93537f69e1c",
+						"name": "To-do",
+						"color": "gray",
+						"option_ids": []
+					},
+					{
+						"id": "b2a7350f-8e75-4e0a-8b7f-bf5d33b89220",
+						"name": "In progress",
+						"color": "blue",
+						"option_ids": [
+							"0ff3e4b4-0148-4bf3-8d44-f3e16d68ea2c",
+							"d33393d6-deb7-4d37-8141-e93e4e69c88e",
+							"7d434269-38f7-425c-a3f8-41de41a867a8"
+						]
+					},
+					{
+						"id": "cd7b317a-f3a2-408a-acf4-eb34ae39990e",
+						"name": "Complete",
+						"color": "green",
+						"option_ids": []
+					}
+				]
+			}
+		},
+		"Smart List (Formula)": {
+			"id": "%40w%3BB",
+			"name": "Smart List (Formula)",
+			"type": "formula",
+			"formula": {
+				"expression": "ifs(\n\t{{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}},\n\t\"Calendar\",\n\t{{notion:block_property:x%5BU%60:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == \"Do Next\" or {{notion:block_property:x%5BU%60:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == \"Delegated\", \n\t{{notion:block_property:x%5BU%60:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \n\t{{notion:block_property:WU%3AS:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}},\n\t\"Snoozed\",\n\t{{notion:block_property:x%5BU%60:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == \"Someday\", \n\t{{notion:block_property:x%5BU%60:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \n\t\"Inbox\"\n)"
+			}
+		},
+		"Created": {
+			"id": "A%7BvH",
+			"name": "Created",
+			"type": "created_time",
+			"created_time": {}
+		},
+		"State": {
+			"id": "Bcwx",
+			"name": "State",
+			"type": "formula",
+			"formula": {
+				"expression": "ifs(\n\t{{notion:block_property:uyrv:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \n\t\"→ \"\n) \n+ ifs(\n\t{{notion:block_property:_D%5ER:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"😀\", \n\t!{{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"⚪\", \n\t{{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.dateEnd().formatDate(\"L\") \n\t== now().dateEnd().formatDate(\"L\"), \"🟢\", \n\t{{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.dateEnd() < now(), \"🔴\", \n\tnow() > {{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.dateStart() \n\tand now() < {{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.dateEnd(), \"🟡\",\n\t\"🔵\"\n)"
+			}
+		},
+		"Next Due API": {
+			"id": "CcS%5E",
+			"name": "Next Due API",
+			"type": "formula",
+			"formula": {
+				"expression": "if(test({{notion:block_property:WcB%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"Error\") or empty({{notion:block_property:WcB%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}) or {{notion:block_property:WcB%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == false, \"∅\", \"{\\\"start\\\":\\\"\" + formatDate(dateStart({{notion:block_property:WcB%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}), \"YYYY-MM-DD\") + \"\\\",\\\"end\\\":\\\"\" + formatDate(dateEnd({{notion:block_property:WcB%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}), \"YYYY-MM-DD\") + \"\\\"}\")"
+			}
+		},
+		"Wait (Parent)": {
+			"id": "E%3CEr",
+			"name": "Wait (Parent)",
+			"type": "formula",
+			"formula": {
+				"expression": "!{{notion:block_property:uyrv:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.first().{{notion:block_property:HqS_:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}\n\t? {{notion:block_property:HqS_:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.timestamp()\n\t: {{notion:block_property:uyrv:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.first().{{notion:block_property:HqS_:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.timestamp()"
+			}
+		},
+		"Created By": {
+			"id": "FH%3DW",
+			"name": "Created By",
+			"type": "created_by",
+			"created_by": {}
+		},
+		"Priority Project": {
+			"id": "Ges%3D",
+			"name": "Priority Project",
+			"type": "rollup",
+			"rollup": {
+				"rollup_property_name": "Priority",
+				"relation_property_name": "Project",
+				"rollup_property_id": "L\\QO",
+				"relation_property_id": "a~|l",
+				"function": "show_original"
+			}
+		},
+		"Wait Date": {
+			"id": "HqS_",
+			"name": "Wait Date",
+			"type": "date",
+			"date": {}
+		},
+		"Kanban - Tag": {
+			"id": "H~vq",
+			"name": "Kanban - Tag",
+			"type": "select",
+			"select": {
+				"options": [
+					{
+						"id": "b5b04b5a-5329-4698-a675-d7ce76473af3",
+						"name": "Design",
+						"color": "brown",
+						"description": null
+					},
+					{
+						"id": "fc4b4e7c-3808-4f44-aa5b-5b49170bf959",
+						"name": "Copy",
+						"color": "orange",
+						"description": null
+					},
+					{
+						"id": "0b989771-685a-4fff-be2a-af2a5f4666bd",
+						"name": "Speed",
+						"color": "yellow",
+						"description": null
+					},
+					{
+						"id": "d8934ae7-cb77-433b-8350-4bc114bf940a",
+						"name": "Security",
+						"color": "purple",
+						"description": null
+					}
+				]
+			}
+		},
+		"Parent Project": {
+			"id": "ONGc",
+			"name": "Parent Project",
+			"type": "rollup",
+			"rollup": {
+				"rollup_property_name": "Project",
+				"relation_property_name": "Parent Task",
+				"rollup_property_id": "a~|l",
+				"relation_property_id": "uyrv",
+				"function": "show_original"
+			}
+		},
+		"Cold": {
+			"id": "P%5DbX",
+			"name": "Cold",
+			"type": "formula",
+			"formula": {
+				"expression": "{{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}\n? now()\n\t.dateBetween(\n\t\t{{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \n\t\t\"days\"\n\t) > 14\n\tand !{{notion:block_property:_D%5ER:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}\n\tand {{notion:block_property:%3E%3DOL:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} != \"🚨HIGH\"\n: false"
+			}
+		},
+		"Parent Smart List": {
+			"id": "Q%5DRX",
+			"name": "Parent Smart List",
+			"type": "rollup",
+			"rollup": {
+				"rollup_property_name": "Smart List (Formula)",
+				"relation_property_name": "Parent Task",
+				"rollup_property_id": "@w;B",
+				"relation_property_id": "uyrv",
+				"function": "show_original"
+			}
+		},
+		"Contexts": {
+			"id": "RSzs",
+			"name": "Contexts",
+			"type": "multi_select",
+			"multi_select": {
+				"options": [
+					{
+						"id": "7fd7c30c-8b5e-45ee-a336-9d052a2400c6",
+						"name": "High-Energy",
+						"color": "green",
+						"description": null
+					},
+					{
+						"id": "a8e8492f-2674-49a5-ad0a-f994ca806874",
+						"name": "Low-Energy",
+						"color": "green",
+						"description": null
+					},
+					{
+						"id": "8661cd2f-a03d-4bc8-a7c4-15d060f894d1",
+						"name": "Errand",
+						"color": "red",
+						"description": null
+					},
+					{
+						"id": "e35f65b0-84b0-4753-8db1-b071f0913b64",
+						"name": "Home",
+						"color": "red",
+						"description": null
+					},
+					{
+						"id": "8fc52d70-97f3-4852-aa83-e26667867669",
+						"name": "Office",
+						"color": "red",
+						"description": null
+					},
+					{
+						"id": "f34ad17c-808b-41f4-84d7-bcbb9b3834ee",
+						"name": "Social",
+						"color": "blue",
+						"description": null
+					}
+				]
+			}
+		},
+		"Snooze": {
+			"id": "WU%3AS",
+			"name": "Snooze",
+			"type": "date",
+			"date": {}
+		},
+		"Next Due": {
+			"id": "WcB%5C",
+			"name": "Next Due",
+			"type": "formula",
+			"formula": {
+				"expression": "if(!empty({{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}) and !empty({{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}),\n    if({{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} > 0 and {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == ceil({{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}),\n        lets(\n            debug, false,\n            \n            recurUnit, ifs(\n                or({{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == at(at({{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, 1), 0), {{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == \"Day(s)\"), \"days\",\n                or({{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == at(at({{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, 1), 1), {{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == \"Week(s)\"), \"weeks\",\n                or({{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == at(at({{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, 1), 2), {{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == \"Month(s)\"), \"months\",\n                or({{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == at(at({{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, 1), 3), {{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == \"Year(s)\"), \"years\",\n                or({{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == at(at({{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, 1), 4), {{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == \"Month(s) on the Last Day\"), \"monthsonthelastday\",\n                or({{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == at(at({{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, 1), 5), {{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == \"Month(s) on the First Weekday\"), \"monthsonthefirstweekday\",\n                or({{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == at(at({{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, 1), 6), {{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == \"Month(s) on the Last Weekday\"), \"monthsonthelastweekday\",\n                \"days\"\n            ),\n            \n            weekdays, match([\n                if(\n                    or(includes({{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, at(at({{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, 0), 1 - 1)), includes({{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"Monday\")), 1, false\n                ),\n                \n                if(\n                    or(includes({{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, at(at({{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, 0), 2 - 1)), includes({{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"Tuesday\")), 2, false\n                ),\n                \n                if(\n                    or(includes({{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, at(at({{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, 0), 3 - 1)), includes({{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"Wednesday\")), 3, false\n                ),\n                \n                if(\n                    or(includes({{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, at(at({{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, 0), 4 - 1)), includes({{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"Thursday\")), 4, false\n                ),\n                \n                if(\n                    or(includes({{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, at(at({{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, 0), 5 - 1)), includes({{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"Friday\")), 5, false\n                ),\n                \n                if(\n                    or(includes({{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, at(at({{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, 0), 6 - 1)), includes({{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"Saturday\")), 6, false\n                ),\n                \n                if(\n                    or(includes({{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, at(at({{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, 0), 7 - 1)), includes({{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"Sunday\")), 7, false\n                )\n            ], \"[1-7]\"),\n            \n            dateDue, parseDate(formatDate({{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"YYYY-MM-DD\")),\n            \n            dateDueEnd, parseDate(formatDate(dateEnd({{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}), \"YYYY-MM-DD\")),\n            \n            timeNow, now(),\n            \n            offsetTimeNow, dateAdd(timeNow, {{notion:block_property:z%3AMU:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"hours\"),\n\n            inUTC, if(formatDate(now(), \"ZZ\") == \"+0000\", true, false),\n            \n            hasValidOffset, if(!empty({{notion:block_property:z%3AMU:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}) and {{notion:block_property:z%3AMU:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} >= -12 and {{notion:block_property:z%3AMU:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} <= 14, true, false),\n            \n            hasRange, dateEnd(dateDueEnd) > dateStart(dateDue),\n            \n            dueRange, dateBetween(dateDueEnd, dateDue, \"days\"),\n            \n            conditionalTimeNow, if(inUTC and hasValidOffset, offsetTimeNow, timeNow),\n            \n            conditionalDateNow, parseDate(formatDate(conditionalTimeNow, \"YYYY-MM-DD\")),\n            \n            recurUnitLapseLength, if(includes([\"days\", \"weeks\", \"months\", \"years\"], recurUnit), dateBetween(conditionalDateNow, dateDue, recurUnit) / {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, false),\n            \n            lastDayBaseDate, if(\n                includes([\"monthsonthelastday\", \"monthsonthefirstweekday\", \"monthsonthelastweekday\"], recurUnit),\n                if(year(conditionalDateNow) * 12 + month(conditionalDateNow) - (year(dateDue) * 12 + month(dateDue)) > 0,\n                    dateSubtract(dateAdd(dateSubtract(dateAdd(dateDue, ceil((year(conditionalDateNow) * 12 + month(conditionalDateNow) - (year(dateDue) * 12 + month(dateDue))) / {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}) * {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"months\"), date(dateAdd(dateDue, ceil((year(conditionalDateNow) * 12 + month(conditionalDateNow) - (year(dateDue) * 12 + month(dateDue))) / {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}) * {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"months\")) - 1, \"days\"), 1, \"months\"), 1, \"days\"),\n                    dateSubtract(dateAdd(dateSubtract(dateAdd(dateDue, {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"months\"), date(dateAdd(dateDue, {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"months\")) - 1, \"days\"), 1, \"months\"), 1, \"days\")),\n                false\n            ),\n            \n            firstDayBaseDate, if(lastDayBaseDate != false, dateSubtract(lastDayBaseDate, date(lastDayBaseDate) - 1, \"days\"), false),\n            \n            firstWeekdayBaseDate, if(lastDayBaseDate != false,\n                if(\n                    test(day(firstDayBaseDate), \"6|7\"), \n                    dateAdd(firstDayBaseDate, 8 - day(firstDayBaseDate), \"days\"),\n                    firstDayBaseDate\n                ),\n                false\n            ),\n            \n            lastWeekdayBaseDate, if(lastDayBaseDate != false,\n                if(\n                    test(day(lastDayBaseDate), \"6|7\"), \n                    dateSubtract(lastDayBaseDate, day(lastDayBaseDate) - 5, \"days\"),\n                    lastDayBaseDate\n                ),\n                false\n            ),\n            \n            nextLastBaseDate, if(lastDayBaseDate != false,\n                dateSubtract(dateAdd(dateSubtract(dateAdd(lastDayBaseDate, {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"months\"), date(dateAdd(lastDayBaseDate, {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"months\")) - 1, \"days\"), 1, \"months\"), 1, \"days\"),\n                false\n            ),\n            \n            nextFirstBaseDate, if(lastDayBaseDate != false, dateSubtract(nextLastBaseDate, date(nextLastBaseDate) - 1, \"days\"), false),\n            \n            nextFirstWeekday, if(lastDayBaseDate != false,\n                if(\n                    test(day(nextFirstBaseDate), \"6|7\"), \n                    dateAdd(nextFirstBaseDate, 8 - day(nextFirstBaseDate), \"days\"),\n                    nextFirstBaseDate\n                ),\n                false\n            ),\n            \n            nextLastWeekday, if(lastDayBaseDate != false,\n                if(\n                    test(day(nextLastBaseDate), \"6|7\"), \n                    dateSubtract(nextLastBaseDate, day(nextLastBaseDate) - 5, \"days\"),\n                    nextLastBaseDate\n                ),\n                false\n            ),\n            \n            nextDueStart, ifs(\n                recurUnit == \"days\" and length(weekdays) > 0 and {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} == 1, \n                    if(conditionalDateNow >= dateDue,\n                        ifs(\n                            includes(weekdays, format(day(dateAdd(conditionalDateNow, 1, \"days\")))), dateAdd(conditionalDateNow, 1, \"days\"),\n                            includes(weekdays, format(day(dateAdd(conditionalDateNow, 2, \"days\")))), dateAdd(conditionalDateNow, 2, \"days\"),\n                            includes(weekdays, format(day(dateAdd(conditionalDateNow, 3, \"days\")))), dateAdd(conditionalDateNow, 3, \"days\"),\n                            includes(weekdays, format(day(dateAdd(conditionalDateNow, 4, \"days\")))), dateAdd(conditionalDateNow, 4, \"days\"),\n                            includes(weekdays, format(day(dateAdd(conditionalDateNow, 5, \"days\")))), dateAdd(conditionalDateNow, 5, \"days\"),\n                            includes(weekdays, format(day(dateAdd(conditionalDateNow, 6, \"days\")))), dateAdd(conditionalDateNow, 6, \"days\"),\n                            includes(weekdays, format(day(dateAdd(conditionalDateNow, 7, \"days\")))), dateAdd(conditionalDateNow, 7, \"days\"),\n                            false\n                        ),\n                        ifs(\n                            includes(weekdays, format(day(dateAdd(dateDue, 1, \"days\")))), dateAdd(dateDue, 1, \"days\"),\n                            includes(weekdays, format(day(dateAdd(dateDue, 2, \"days\")))), dateAdd(dateDue, 2, \"days\"),\n                            includes(weekdays, format(day(dateAdd(dateDue, 3, \"days\")))), dateAdd(dateDue, 3, \"days\"),\n                            includes(weekdays, format(day(dateAdd(dateDue, 4, \"days\")))), dateAdd(dateDue, 4, \"days\"),\n                            includes(weekdays, format(day(dateAdd(dateDue, 5, \"days\")))), dateAdd(dateDue, 5, \"days\"),\n                            includes(weekdays, format(day(dateAdd(dateDue, 6, \"days\")))), dateAdd(dateDue, 6, \"days\"),\n                            includes(weekdays, format(day(dateAdd(dateDue, 7, \"days\")))), dateAdd(dateDue, 7, \"days\"),\n                            false\n                        )\n                    ),\n                \n                recurUnit == \"monthsonthelastday\", if(conditionalDateNow >= lastDayBaseDate, nextLastBaseDate, lastDayBaseDate),\n                \n                recurUnit == \"monthsonthefirstweekday\", if(conditionalDateNow >= firstWeekdayBaseDate, nextFirstWeekday, firstWeekdayBaseDate),\n                \n                recurUnit == \"monthsonthelastweekday\", if(conditionalDateNow >= lastWeekdayBaseDate, nextLastWeekday, lastWeekdayBaseDate),\n                \n                includes([\"days\", \"weeks\", \"months\", \"years\"], recurUnit), \n                    if(dateBetween(conditionalDateNow, dateDue, \"days\") >= 1,\n                        if(recurUnitLapseLength == ceil(recurUnitLapseLength),\n                            dateAdd(dateDue, (recurUnitLapseLength + 1) * {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, recurUnit),\n                            dateAdd(dateDue, ceil(recurUnitLapseLength) * {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, recurUnit)\n                        ),\n                        dateAdd(dateDue, {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, recurUnit)\n                    ),\n                false\n            ),\n            \n            nextDueEnd, if(hasRange and nextDueStart != false, \n                dateAdd(nextDueStart, dueRange, \"days\"),\n                false\n            ),\n            \n            nextDue, if(hasRange and nextDueEnd != false, dateRange(nextDueStart, nextDueEnd), nextDueStart),\n            \n            if(\n                debug == true,\n                \"---------\\n\" + {{notion:block_property:title:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} + \"\\n---------\" +\n                \"\\npropDue: \" + {{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} +\n                \"\\npropRecurInterval: \" + {{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} +\n                \"\\npropRecurUnit: \" + {{notion:block_property:a%5ESo:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} +\n                \"\\npropDays: \" + {{notion:block_property:ZhZF:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} +\n                \"\\npropLocalizationKey: \" + {{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} +\n                \"\\npropLocalizationKeyFormatted: \" + \n                    map(\n                        {{notion:block_property:m%5E~%5C:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \n                        ifs(index == 0,\n                            \"\\n\\tweekdays: \" + current,\n                            index == 1, \"\\n\\trecur units: \" + current,\n                            false\n                        )\n                    ) +\n                \"\\npropUTCOffset: \" + {{notion:block_property:z%3AMU:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} +\n                \"\\nrecurUnit: \" + recurUnit +\n                \"\\nweekdays: \" + weekdays +\n                \"\\ndateDue: \" + dateDue +\n                \"\\ndateDueEnd: \" + dateDueEnd +\n                \"\\ntimeNow: \" + timeNow +\n                \"\\noffsetTimeNow: \" + offsetTimeNow +\n                \"\\ninUTC: \" + inUTC +\n                \"\\nhasValidOffset: \" + hasValidOffset +\n                \"\\nhasRange: \" + hasRange +\n                \"\\ndueRange: \" + dueRange +\n                \"\\nconditionalTimeNow: \" + conditionalTimeNow +\n                \"\\nconditionalDateNow: \" + conditionalDateNow +\n                \"\\nrecurUnitLapseLength: \" + recurUnitLapseLength +\n                \"\\nlastDayBaseDate: \" + lastDayBaseDate +\n                \"\\nfirstDayBaseDate: \" + firstDayBaseDate +\n                \"\\nfirstWeekdayBaseDate: \" + firstWeekdayBaseDate +\n                \"\\nlastWeekdayBaseDate: \" + lastWeekdayBaseDate +\n                \"\\nnextLastBaseDate: \" + nextLastBaseDate +\n                \"\\nnextFirstBaseDate: \" + nextFirstBaseDate +\n                \"\\nnextFirstWeekday: \" + nextFirstWeekday +\n                \"\\nnextLastWeekday: \" + nextLastWeekday +\n                \"\\nnextDueStart: \" + nextDueStart +\n                \"\\nnextDueEnd: \" + nextDueEnd +\n                \"\\nnextDue: \" + nextDue,\n                nextDue\n            )\n        ),\n    \"Error: Non-Whole or Negative Recur Interval\"),\n\"\")"
+			}
+		},
+		"Quick Capture Box": {
+			"id": "Wlps",
+			"name": "Quick Capture Box",
+			"type": "formula",
+			"formula": {
+				"expression": "now()\n\t.dateBetween(\n\t\t{{notion:block_property:A%7BvH:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \n\t\t\"days\"\n\t) < 1"
+			}
+		},
+		"Days (Only if Set to 1 Day(s))": {
+			"id": "ZhZF",
+			"name": "Days (Only if Set to 1 Day(s))",
+			"type": "multi_select",
+			"multi_select": {
+				"options": [
+					{
+						"id": "334dcb5d-b93f-4310-b8cf-6d12f0318fd6",
+						"name": "Monday",
+						"color": "yellow",
+						"description": null
+					},
+					{
+						"id": "7db3c9dc-5056-4c27-b813-a31b5d2a6bc7",
+						"name": "Tuesday",
+						"color": "yellow",
+						"description": null
+					},
+					{
+						"id": "23c0c409-4183-4bd3-8af8-3ac48a93d920",
+						"name": "Wednesday",
+						"color": "gray",
+						"description": null
+					},
+					{
+						"id": "d43189fb-a2a7-4b17-8052-38d2f89c7b17",
+						"name": "Thursday",
+						"color": "purple",
+						"description": null
+					},
+					{
+						"id": "89dd030e-7f56-408c-8769-04d4b90cde8b",
+						"name": "Friday",
+						"color": "default",
+						"description": null
+					},
+					{
+						"id": "6826bd36-74b3-4dbb-ad5c-2b740b5c6884",
+						"name": "Saturday",
+						"color": "green",
+						"description": null
+					},
+					{
+						"id": "6f878acb-c8bc-489a-9e56-92a36db6d5a3",
+						"name": "Sunday",
+						"color": "brown",
+						"description": null
+					}
+				]
+			}
+		},
+		"Sub Seed": {
+			"id": "%5B%7BZP",
+			"name": "Sub Seed",
+			"type": "formula",
+			"formula": {
+				"expression": "!{{notion:block_property:uyrv:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}"
+			}
+		},
+		"My Day": {
+			"id": "%5EHi%3A",
+			"name": "My Day",
+			"type": "checkbox",
+			"checkbox": {}
+		},
+		"Done": {
+			"id": "_D%5ER",
+			"name": "Done",
+			"type": "checkbox",
+			"checkbox": {}
+		},
+		"Divider": {
+			"id": "%60sQo",
+			"name": "Divider",
+			"type": "formula",
+			"formula": {
+				"expression": "\"■■■\".style(\"red\") \n+ \" Everything below here just runs the template\".style(\"b\")"
+			}
+		},
+		"Late": {
+			"id": "aG%7CO",
+			"name": "Late",
+			"type": "formula",
+			"formula": {
+				"expression": "now().dateBetween({{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}, \"days\") > 0\nand !{{notion:block_property:_D%5ER:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}\n\t? \"☠️\"\n\t: \"\""
+			}
+		},
+		"Recur Unit": {
+			"id": "a%5ESo",
+			"name": "Recur Unit",
+			"type": "select",
+			"select": {
+				"options": [
+					{
+						"id": "a3af906d-573f-425f-94ce-b81246f91a79",
+						"name": "Day(s)",
+						"color": "yellow",
+						"description": null
+					},
+					{
+						"id": "b49c772b-b40f-41e9-a655-f0b642b4cf99",
+						"name": "Week(s)",
+						"color": "gray",
+						"description": null
+					},
+					{
+						"id": "10910584-dd68-4c6b-b088-06ba23f3d7f6",
+						"name": "Month(s)",
+						"color": "pink",
+						"description": null
+					},
+					{
+						"id": "73da7382-18b4-433b-83e4-070d3c38e589",
+						"name": "Month(s) on the First Weekday",
+						"color": "default",
+						"description": null
+					},
+					{
+						"id": "9bd2610b-8acb-409f-94f5-6ca5e7b9294f",
+						"name": "Month(s) on the Last Weekday",
+						"color": "orange",
+						"description": null
+					},
+					{
+						"id": "ed4f8ce2-afe5-4300-ab8c-58d1c4947444",
+						"name": "Month(s) on the Last Day",
+						"color": "brown",
+						"description": null
+					},
+					{
+						"id": "45ab5428-6353-4b35-8d7e-ae0c2369a655",
+						"name": "Year(s)",
+						"color": "red",
+						"description": null
+					}
+				]
+			}
+		},
+		"Type": {
+			"id": "anYj",
+			"name": "Type",
+			"type": "formula",
+			"formula": {
+				"expression": "if(empty({{notion:block_property:mvpx:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}), \"⏳One-Time\", \"⏳One-Time\")"
+			}
+		},
+		"Project": {
+			"id": "a~%7Cl",
+			"name": "Project",
+			"type": "relation",
+			"relation": {
+				"database_id": "3a6e7609-1383-4efe-919f-204fcf8b3c2d",
+				"type": "dual_property",
+				"dual_property": {
+					"synced_property_name": "Tasks",
+					"synced_property_id": "fyxc"
+				}
+			}
+		},
+		"Due": {
+			"id": "bl%3D%3B",
+			"name": "Due",
+			"type": "date",
+			"date": {}
+		},
+		"✅ Sub-Task Divider": {
+			"id": "k%5B%7Cq",
+			"name": "✅ Sub-Task Divider",
+			"type": "formula",
+			"formula": {
+				"expression": "\"■■■\".style(\"red\") \n+ \" Helper functions for sub-task sorting\".style(\"b\")"
+			}
+		},
+		"Localization Key": {
+			"id": "m%5E~%5C",
+			"name": "Localization Key",
+			"type": "formula",
+			"formula": {
+				"expression": "[\n/* Rewrite these weekday and recur unit options in your own language, so your second brain can work even better with your first. Make sure to set up the same options in the \"Recur Unit\" and \"Days (Only If Set to 1 Day(s))\" properties afterward, so you can select them. Feel free to remove the original names afterward! */\n\n/* [\"lunes\", \"3ª\", \"mercredi\", \"木曜日\", \"piątek\", \"lørdag\", \"Double Sunday\"] */\n[\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\", \"Sunday\"],\n\n/* [\"Day(s)\", \"Week(s)\", \"Month(s)\", \"Year(s)\", \"Month(s) on the Last Day\", \"Month(s) on the First Weekday\", \"Month(s) on the Last Weekday\"] */\n[\"Day(s)\", \"Week(s)\", \"Month(s)\", \"Year(s)\", \"Month(s) on the Last Day\", \"Month(s) on the First Weekday\", \"Month(s) on the Last Weekday\"]\n]"
+			}
+		},
+		"Edited Stamp (Parent)": {
+			"id": "mg%3BS",
+			"name": "Edited Stamp (Parent)",
+			"type": "formula",
+			"formula": {
+				"expression": "!{{notion:block_property:uyrv:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}\n\t? {{notion:block_property:last_edited_time}}.timestamp()\n\t: {{notion:block_property:uyrv:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.first().{{notion:block_property:last_edited_time}}.timestamp()"
+			}
+		},
+		"Recur Interval": {
+			"id": "mvpx",
+			"name": "Recur Interval",
+			"type": "number",
+			"number": {
+				"format": "number"
+			}
+		},
+		"Created Stamp (Parent)": {
+			"id": "nCll",
+			"name": "Created Stamp (Parent)",
+			"type": "formula",
+			"formula": {
+				"expression": "!{{notion:block_property:uyrv:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}\n\t? {{notion:block_property:created_time}}.timestamp()\n\t: {{notion:block_property:uyrv:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.first().{{notion:block_property:created_time}}.timestamp()"
+			}
+		},
+		"Start": {
+			"id": "nkuw",
+			"name": "Start",
+			"type": "date",
+			"date": {}
+		},
+		"Project Area": {
+			"id": "p%5Dy%5D",
+			"name": "Project Area",
+			"type": "rollup",
+			"rollup": {
+				"rollup_property_name": "Area",
+				"relation_property_name": "Project",
+				"rollup_property_id": "lnvs",
+				"relation_property_id": "a~|l",
+				"function": "show_original"
+			}
+		},
+		"Sub-Task Count": {
+			"id": "ptv%40",
+			"name": "Sub-Task Count",
+			"type": "rollup",
+			"rollup": {
+				"rollup_property_name": "Task",
+				"relation_property_name": "Sub-Tasks",
+				"rollup_property_id": "title",
+				"relation_property_id": "wzvD",
+				"function": "show_original"
+			}
+		},
+		"Due Timestamp": {
+			"id": "qHs%3F",
+			"name": "Due Timestamp",
+			"type": "formula",
+			"formula": {
+				"expression": "!{{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}\n\t? now().dateAdd(100, \"years\").timestamp()\n\t: {{notion:block_property:bl%3D%3B:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.timestamp()"
+			}
+		},
+		"Assignee": {
+			"id": "qbq%3A",
+			"name": "Assignee",
+			"type": "people",
+			"people": {}
+		},
+		"Snooze (Parent)": {
+			"id": "t_%40~",
+			"name": "Snooze (Parent)",
+			"type": "formula",
+			"formula": {
+				"expression": "!{{notion:block_property:uyrv:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.first().{{notion:block_property:WU%3AS:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}\n\t? {{notion:block_property:WU%3AS:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.timestamp()\n\t: {{notion:block_property:uyrv:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.first().{{notion:block_property:WU%3AS:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.timestamp()"
+			}
+		},
+		"Parent Task": {
+			"id": "uyrv",
+			"name": "Parent Task",
+			"type": "relation",
+			"relation": {
+				"database_id": "d1b18b06-b76a-4c68-bf9e-d565b40378f6",
+				"type": "dual_property",
+				"dual_property": {
+					"synced_property_name": "Sub-Tasks",
+					"synced_property_id": "wzvD"
+				}
+			}
+		},
+		"Sub-Tasks": {
+			"id": "wzvD",
+			"name": "Sub-Tasks",
+			"type": "relation",
+			"relation": {
+				"database_id": "d1b18b06-b76a-4c68-bf9e-d565b40378f6",
+				"type": "dual_property",
+				"dual_property": {
+					"synced_property_name": "Parent Task",
+					"synced_property_id": "uyrv"
+				}
+			}
+		},
+		"Smart List": {
+			"id": "x%5BU%60",
+			"name": "Smart List",
+			"type": "select",
+			"select": {
+				"options": [
+					{
+						"id": "40716b16-ece4-4378-9041-6388fb58b7db",
+						"name": "Do Next",
+						"color": "green",
+						"description": null
+					},
+					{
+						"id": "8aa5a2fe-5634-4eb6-8878-9ae92634710d",
+						"name": "Delegated",
+						"color": "yellow",
+						"description": null
+					},
+					{
+						"id": "74ec8235-7417-421d-a26e-39a6626dba55",
+						"name": "Someday",
+						"color": "red",
+						"description": null
+					}
+				]
+			}
+		},
+		"Kanban Status": {
+			"id": "xkX~",
+			"name": "Kanban Status",
+			"type": "status",
+			"status": {
+				"options": [
+					{
+						"id": "2cc623d0-c50b-48d9-a6f8-d508e2d534d3",
+						"name": "To Do",
+						"color": "red",
+						"description": null
+					},
+					{
+						"id": "246369be-1099-46ae-9e99-ef6f0772463f",
+						"name": "Doing",
+						"color": "blue",
+						"description": null
+					},
+					{
+						"id": "3d9b6b8a-289f-4812-afc2-eda517af5f73",
+						"name": "Done",
+						"color": "green",
+						"description": null
+					}
+				],
+				"groups": [
+					{
+						"id": "67cd79b3-d067-4822-9662-03bec1ddc018",
+						"name": "To-do",
+						"color": "gray",
+						"option_ids": [
+							"2cc623d0-c50b-48d9-a6f8-d508e2d534d3"
+						]
+					},
+					{
+						"id": "997c6475-c75f-4927-b07b-edfc79c0d414",
+						"name": "In progress",
+						"color": "blue",
+						"option_ids": [
+							"246369be-1099-46ae-9e99-ef6f0772463f"
+						]
+					},
+					{
+						"id": "27f5f46a-09a1-4b54-b33f-ac5c273d9aeb",
+						"name": "Complete",
+						"color": "green",
+						"option_ids": [
+							"3d9b6b8a-289f-4812-afc2-eda517af5f73"
+						]
+					}
+				]
+			}
+		},
+		"UTC Offset": {
+			"id": "z%3AMU",
+			"name": "UTC Offset",
+			"type": "formula",
+			"formula": {
+				"expression": "-5"
+			}
+		},
+		"Due Stamp (Parent)": {
+			"id": "%7BP%5BX",
+			"name": "Due Stamp (Parent)",
+			"type": "formula",
+			"formula": {
+				"expression": "!{{notion:block_property:uyrv:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}\n\t? {{notion:block_property:qHs%3F:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}\n\t: {{notion:block_property:uyrv:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.first().{{notion:block_property:qHs%3F:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}"
+			}
+		},
+		"Sub Seed Name": {
+			"id": "%7BZyV",
+			"name": "Sub Seed Name",
+			"type": "formula",
+			"formula": {
+				"expression": "!{{notion:block_property:uyrv:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}} \nand {{notion:block_property:%5B%7BZP:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}\n\t? {{notion:block_property:title:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.lower()\n\t: {{notion:block_property:uyrv:00000000-0000-0000-0000-000000000000:191b1c83-1be7-4a60-80a2-6914a0773d1e}}.format().lower()"
+			}
+		},
+		"Note": {
+			"id": "%7Dfh~",
+			"name": "Note",
+			"type": "rich_text",
+			"rich_text": {}
+		},
+		"Task": {
+			"id": "title",
+			"name": "Task",
+			"type": "title",
+			"title": {}
+		}
+	},
+	"parent": {
+		"type": "block_id",
+		"block_id": "c61ad91f-f3f0-4ef7-b633-970e5ee1f5b3"
+	},
+	"url": "https://www.notion.so/d1b18b06b76a4c68bf9ed565b40378f6",
+	"public_url": null,
+	"archived": false,
+	"request_id": "cec8e772-6977-4831-a6c3-77b5203f3e81"
+}
