@@ -9,7 +9,7 @@ export default {
 	name: "Notion Recurring Tasks",
 	description: "Recurring Tasks for Ultimate Brain",
 	key: "notion-recurring-tasks",
-	version: "0.1.75",
+	version: "0.1.77",
 	type: "action",
 	props: {
 		instructions: {
@@ -865,6 +865,22 @@ export default {
 		);
 		config.due = JSON.parse(this.dueProp);
 		config.done = JSON.parse(this.doneProp);
+
+		// Check for type on the Due and Done properties
+		if (!config.due.type || config.due.type !== "date") {
+			throw new Error(
+				`Error: The Due property either doesn't have a type set, or its type is not "date". Please hit the "Refresh Fields" button at the bottom of the Configure tab above, then re-set the Due Property field.`
+			);
+		}
+
+		if (!config.done.type || (
+			config.done.type !== "checkbox" && config.done.type !== "status"
+		)) {
+			throw new Error(
+				`Error: The Done property either doesn't have a type set, or its type is not one of the supported options ("checkbox" or "status"). Please hit the "Refresh Fields" button at the bottom of the Configure tab above, then re-set the Done Property field.`
+			);
+		}
+
 		if (this.donePropStatusNotStarted) {
 			config.done.not_started = JSON.parse(this.donePropStatusNotStarted);
 		}
@@ -873,6 +889,15 @@ export default {
 		}
 		if (this.secondaryDoneProp) {
 			config.secondary_done = JSON.parse(this.secondaryDoneProp);
+
+			if (!config.secondary_done.type || (
+				config.secondary_done.type !== "checkbox" && config.secondary_done.type !== "status"
+			)) {
+				throw new Error(
+					`Error: The Secondary Done property either doesn't have a type set, or its type is not one of the supported options ("checkbox" or "status"). Please hit the "Refresh Fields" button at the bottom of the Configure tab above, then re-set the Secondary Done Property field.`
+				);
+			}
+
 			if (this.secondaryDonePropStatusNotStarted) {
 				config.secondary_done.not_started = JSON.parse(
 					this.secondaryDonePropStatusNotStarted
@@ -961,10 +986,10 @@ export default {
 			$.export("Workflow Report", {
 				markdown: `Notion Recurring Tasks Report:
 			
-				Found no tasks to update.`,
+Found no tasks to update.`,
 				slack: `Notion Recurring Tasks Report:
 			
-				Found no tasks to update.`,
+Found no tasks to update.`,
 			});
 		} else {
 			$.export(
