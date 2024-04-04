@@ -9,7 +9,7 @@ export default {
 	name: "Notion Recurring Tasks",
 	description: "Recurring Tasks for Ultimate Brain",
 	key: "notion-recurring-tasks",
-	version: "0.1.77",
+	version: "0.1.79",
 	type: "action",
 	props: {
 		instructions: {
@@ -243,7 +243,8 @@ export default {
 						})),
 						optional: false,
 					},
-				}),
+				}
+			),
 		};
 
 		if (
@@ -345,6 +346,12 @@ export default {
 				})),
 				optional: false,
 			};
+		}
+
+		props.finalInstructions = {
+			type: "alert",
+			alertType: "info",
+			content: `## Final Steps\n\nOnce you've finished setting all of your properties above, do the following:\n\n1. For testing, make sure you have at least **finished** recurring task in your Notion database.\n\n2. Click **Test**, and check that your finished task has been set back to its "un-done" status (based on your chosen Task Status property).\n\n3. If everything looks good, click **Deploy** to make the workflow live.\n\nYou can also add additional steps to this workflow. For example, in the Exports tab, I've include a Workflow Report object with both a standard-Markdown and Slack-specific-Markdown version of the report. You can use either one to send a report to Slack, email, Discord, etc.`
 		}
 
 		return props;
