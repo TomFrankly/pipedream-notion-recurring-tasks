@@ -400,7 +400,7 @@ export default {
 									},
 									[config.type.name]: {
 										formula: {
-											expression: `if(empty(prop("Recur Interval")), "⏳One-Time", "⏳One-Time")`,
+											expression: `if(empty(prop("Recur Interval")), "⏳One-Time", "🔄Recurring")`,
 										},
 									},
 								},
