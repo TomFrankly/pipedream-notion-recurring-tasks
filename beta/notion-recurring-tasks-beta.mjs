@@ -9,7 +9,7 @@ export default {
 	name: "Beta Notion Recurring Tasks",
 	description: "Recurring Tasks for Ultimate Brain",
 	key: "notion-recurring-tasks-beta",
-	version: "0.1.74",
+	version: "0.1.80",
 	type: "action",
 	props: {
 		instructions: {
@@ -88,40 +88,6 @@ export default {
 			database_id: this.databaseID,
 		});
 
-		const properties = database.properties;
-
-		const sortByPropName = (props, nameIncludes) =>
-			props.sort((a, b) => {
-				const aIndex = nameIncludes.findIndex((name) => a.includes(name));
-				const bIndex = nameIncludes.findIndex((name) => b.includes(name));
-
-				if (aIndex !== -1 && bIndex !== -1) {
-					if (aIndex < bIndex) return -1;
-					if (aIndex > bIndex) return 1;
-				}
-
-				if (aIndex !== -1) return -1;
-				if (bIndex !== -1) return 1;
-
-				return 0;
-			});
-
-		const getPropsWithTypes = (types) =>
-			Object.keys(properties).filter((k) => types.includes(properties[k].type));
-
-		const dueProps = sortByPropName(getPropsWithTypes(["date"]), ["Due"]);
-		const nextDueAPIProps = sortByPropName(getPropsWithTypes(["formula"]), [
-			"Next Due API",
-		]);
-		const utcOffsetFormulaProps = sortByPropName(getPropsWithTypes(["formula"]), [
-			"UTC Offset",
-		]);
-		const typeProps = sortByPropName(getPropsWithTypes(["formula"]), ["Type"]);
-		const doneCheckboxProps = sortByPropName(
-			getPropsWithTypes(["checkbox", "status"]),
-			["Status", "Kanban Status", "Done"]
-		);
-
 		// Identify and verify helper props
 		const helperProps = {
 			nextDueAPI: {
@@ -143,6 +109,46 @@ export default {
 			},
 		};
 
+		const properties = database.properties;
+
+		const sortByPropName = (props, nameIncludes) =>
+			props.sort((a, b) => {
+				const aIndex = nameIncludes.findIndex((name) => a.includes(name));
+				const bIndex = nameIncludes.findIndex((name) => b.includes(name));
+
+				if (aIndex !== -1 && bIndex !== -1) {
+					if (aIndex < bIndex) return -1;
+					if (aIndex > bIndex) return 1;
+				}
+
+				if (aIndex !== -1) return -1;
+				if (bIndex !== -1) return 1;
+
+				return 0;
+			});
+
+		const getPropsWithTypes = (types) =>
+			Object.keys(properties).filter((k) => types.includes(properties[k].type));
+
+		const getPropsWithExpressionValue = (value) =>
+			Object.keys(properties).filter((k) => properties[k]?.formula?.expression.includes(value))
+
+		const dueProps = sortByPropName(getPropsWithTypes(["date"]), ["Due"]);
+		const nextDueAPIProps = sortByPropName(
+			getPropsWithExpressionValue(helperProps.nextDueAPI.expression), 
+			[
+				"Next Due API",
+			]
+		);
+		const utcOffsetFormulaProps = sortByPropName(getPropsWithTypes(["formula"]), [
+			"UTC Offset",
+		]);
+		const typeProps = sortByPropName(getPropsWithTypes(["formula"]), ["Type"]);
+		const doneCheckboxProps = sortByPropName(
+			getPropsWithTypes(["checkbox", "status"]),
+			["Status", "Kanban Status", "Done"]
+		);
+
 		const props = {
 			dueProp: {
 				type: "string",
@@ -158,6 +164,13 @@ export default {
 				})),
 				optional: false,
 			},
+			...(properties["Kanban Status"] && properties["Kanban Status"].type === "select" && {
+				kanbanStatusWarning: {
+					type: "alert",
+					alertType: "warning",
+					content: `It looks like your database has a **Kanban Status** property, but it's a **Select** property. The "Done" option in this workflow only supports **Status** and **Checkbox** properties.\n\nIn your database, you can convert your Kanban Status property to a Status property. Once you do that, hit "Refresh Fields" at the bottom of this Configue section and you should see the Kanban Status property in the list of Task Status properties below.`,
+				}
+			}),
 			doneProp: {
 				type: "string",
 				label: "Task Status Property",
@@ -243,7 +256,8 @@ export default {
 						})),
 						optional: false,
 					},
-				}),
+				}
+			),
 		};
 
 		if (
@@ -256,11 +270,21 @@ export default {
 		) {
 			helperProps.nextDueAPI.manual = true;
 
-			props.nextDueAPIWarning = {
-				type: "alert",
-				alertType: "warning",
-				content: `Your chosen Target Database does not contain a **Next Due API** formula property. This workflow requires this property to function. If you have renamed it in your database, please set it in the Next Due API Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above.`,
-			};
+			// If the database contains the Smart List property, it's likely Ultimate Brain. Adjust warning to link to the Formulas 2.0 update.
+			if (properties["Smart List"]) {
+				props.nextDueAPIWarning = {
+					type: "alert",
+					alertType: "warning",
+					content: `Your chosen Target Database does not contain a **Next Due API** formula property. This workflow requires this property to function. If you have renamed it in your database, please set it in the Next Due API Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above.\n\nP.S. – It looks like you're using Ultimate Brain. You might be using an older version of the template; if so, you can [upgrade using our Formulas 2.0 guide](https://thomasfrank.notion.site/Formulas-2-0-1b6f3228097e4293993af2f3b9f7c738) in order to add all the needed properties for this workflow.`,
+				};
+			} else {
+				props.nextDueAPIWarning = {
+					type: "alert",
+					alertType: "warning",
+					content: `Your chosen Target Database does not contain a **Next Due API** formula property. This workflow requires this property to function. If you have renamed it in your database, please set it in the Next Due API Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above.`,
+				};
+			}
+			
 
 			props.nextDueAPIProp = {
 				type: "string",
@@ -335,6 +359,12 @@ export default {
 				})),
 				optional: false,
 			};
+		}
+
+		props.finalInstructions = {
+			type: "alert",
+			alertType: "info",
+			content: `## Final Steps\n\nOnce you've finished setting all of your properties above, do the following:\n\n1. For testing, make sure you have at least **finished** recurring task in your Notion database.\n\n2. Click **Test**, and check that your finished task has been set back to its "un-done" status (based on your chosen Task Status property).\n\n3. If everything looks good, click **Deploy** to make the workflow live.\n\nYou can also add additional steps to this workflow. For example, in the Exports tab, I've include a Workflow Report object with both a standard-Markdown and Slack-specific-Markdown version of the report. You can use either one to send a report to Slack, email, Discord, etc.`
 		}
 
 		return props;
@@ -855,6 +885,22 @@ export default {
 		);
 		config.due = JSON.parse(this.dueProp);
 		config.done = JSON.parse(this.doneProp);
+
+		// Check for type on the Due and Done properties
+		if (!config.due.type || config.due.type !== "date") {
+			throw new Error(
+				`Error: The Due property either doesn't have a type set, or its type is not "date". Please hit the "Refresh Fields" button at the bottom of the Configure tab above, then re-set the Due Property field.`
+			);
+		}
+
+		if (!config.done.type || (
+			config.done.type !== "checkbox" && config.done.type !== "status"
+		)) {
+			throw new Error(
+				`Error: The Done property either doesn't have a type set, or its type is not one of the supported options ("checkbox" or "status"). Please hit the "Refresh Fields" button at the bottom of the Configure tab above, then re-set the Done Property field.`
+			);
+		}
+
 		if (this.donePropStatusNotStarted) {
 			config.done.not_started = JSON.parse(this.donePropStatusNotStarted);
 		}
@@ -863,6 +909,15 @@ export default {
 		}
 		if (this.secondaryDoneProp) {
 			config.secondary_done = JSON.parse(this.secondaryDoneProp);
+
+			if (!config.secondary_done.type || (
+				config.secondary_done.type !== "checkbox" && config.secondary_done.type !== "status"
+			)) {
+				throw new Error(
+					`Error: The Secondary Done property either doesn't have a type set, or its type is not one of the supported options ("checkbox" or "status"). Please hit the "Refresh Fields" button at the bottom of the Configure tab above, then re-set the Secondary Done Property field.`
+				);
+			}
+
 			if (this.secondaryDonePropStatusNotStarted) {
 				config.secondary_done.not_started = JSON.parse(
 					this.secondaryDonePropStatusNotStarted
@@ -951,10 +1006,10 @@ export default {
 			$.export("Workflow Report", {
 				markdown: `Notion Recurring Tasks Report:
 			
-				Found no tasks to update.`,
+Found no tasks to update.`,
 				slack: `Notion Recurring Tasks Report:
 			
-				Found no tasks to update.`,
+Found no tasks to update.`,
 			});
 		} else {
 			$.export(

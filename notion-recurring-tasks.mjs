@@ -9,7 +9,7 @@ export default {
 	name: "Notion Recurring Tasks",
 	description: "Recurring Tasks for Ultimate Brain",
 	key: "notion-recurring-tasks",
-	version: "0.1.79",
+	version: "0.1.81",
 	type: "action",
 	props: {
 		instructions: {
@@ -88,40 +88,6 @@ export default {
 			database_id: this.databaseID,
 		});
 
-		const properties = database.properties;
-
-		const sortByPropName = (props, nameIncludes) =>
-			props.sort((a, b) => {
-				const aIndex = nameIncludes.findIndex((name) => a.includes(name));
-				const bIndex = nameIncludes.findIndex((name) => b.includes(name));
-
-				if (aIndex !== -1 && bIndex !== -1) {
-					if (aIndex < bIndex) return -1;
-					if (aIndex > bIndex) return 1;
-				}
-
-				if (aIndex !== -1) return -1;
-				if (bIndex !== -1) return 1;
-
-				return 0;
-			});
-
-		const getPropsWithTypes = (types) =>
-			Object.keys(properties).filter((k) => types.includes(properties[k].type));
-
-		const dueProps = sortByPropName(getPropsWithTypes(["date"]), ["Due"]);
-		const nextDueAPIProps = sortByPropName(getPropsWithTypes(["formula"]), [
-			"Next Due API",
-		]);
-		const utcOffsetFormulaProps = sortByPropName(getPropsWithTypes(["formula"]), [
-			"UTC Offset",
-		]);
-		const typeProps = sortByPropName(getPropsWithTypes(["formula"]), ["Type"]);
-		const doneCheckboxProps = sortByPropName(
-			getPropsWithTypes(["checkbox", "status"]),
-			["Status", "Kanban Status", "Done"]
-		);
-
 		// Identify and verify helper props
 		const helperProps = {
 			nextDueAPI: {
@@ -143,6 +109,46 @@ export default {
 			},
 		};
 
+		const properties = database.properties;
+
+		const sortByPropName = (props, nameIncludes) =>
+			props.sort((a, b) => {
+				const aIndex = nameIncludes.findIndex((name) => a.includes(name));
+				const bIndex = nameIncludes.findIndex((name) => b.includes(name));
+
+				if (aIndex !== -1 && bIndex !== -1) {
+					if (aIndex < bIndex) return -1;
+					if (aIndex > bIndex) return 1;
+				}
+
+				if (aIndex !== -1) return -1;
+				if (bIndex !== -1) return 1;
+
+				return 0;
+			});
+
+		const getPropsWithTypes = (types) =>
+			Object.keys(properties).filter((k) => types.includes(properties[k].type));
+
+		const getPropsWithExpressionValue = (value) =>
+			Object.keys(properties).filter((k) => properties[k]?.formula?.expression.includes(value))
+
+		const dueProps = sortByPropName(getPropsWithTypes(["date"]), ["Due"]);
+		const nextDueAPIProps = sortByPropName(
+			getPropsWithExpressionValue(helperProps.nextDueAPI.expression), 
+			[
+				"Next Due API",
+			]
+		);
+		const utcOffsetFormulaProps = sortByPropName(getPropsWithTypes(["formula"]), [
+			"UTC Offset",
+		]);
+		const typeProps = sortByPropName(getPropsWithTypes(["formula"]), ["Type"]);
+		const doneCheckboxProps = sortByPropName(
+			getPropsWithTypes(["checkbox", "status"]),
+			["Status", "Kanban Status", "Done"]
+		);
+
 		const props = {
 			dueProp: {
 				type: "string",
@@ -158,6 +164,13 @@ export default {
 				})),
 				optional: false,
 			},
+			...(properties["Kanban Status"] && properties["Kanban Status"].type === "select" && {
+				kanbanStatusWarning: {
+					type: "alert",
+					alertType: "warning",
+					content: `It looks like your database has a **Kanban Status** property, but it's a **Select** property. The "Done" option in this workflow only supports **Status** and **Checkbox** properties.\n\nIn your database, you can convert your Kanban Status property to a Status property. Once you do that, simply choose any property below to force the workflow to refresh. After that, you should see the Kanban Status property in the list of Task Status properties below.`,
+				}
+			}),
 			doneProp: {
 				type: "string",
 				label: "Task Status Property",
