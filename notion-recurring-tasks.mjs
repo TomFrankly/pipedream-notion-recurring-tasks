@@ -9,7 +9,7 @@ export default {
 	name: "Notion Recurring Tasks",
 	description: "Recurring Tasks for Ultimate Brain",
 	key: "notion-recurring-tasks",
-	version: "0.1.81",
+	version: "0.1.83",
 	type: "action",
 	props: {
 		instructions: {
@@ -143,7 +143,6 @@ export default {
 		const utcOffsetFormulaProps = sortByPropName(getPropsWithTypes(["formula"]), [
 			"UTC Offset",
 		]);
-		const typeProps = sortByPropName(getPropsWithTypes(["formula"]), ["Type"]);
 		const doneCheckboxProps = sortByPropName(
 			getPropsWithTypes(["checkbox", "status"]),
 			["Status", "Kanban Status", "Done"]
@@ -275,13 +274,13 @@ export default {
 				props.nextDueAPIWarning = {
 					type: "alert",
 					alertType: "warning",
-					content: `Your chosen Target Database does not contain a **Next Due API** formula property. This workflow requires this property to function. If you have renamed it in your database, please set it in the Next Due API Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above.\n\nP.S. – It looks like you're using Ultimate Brain. You might be using an older version of the template; if so, you can [upgrade using our Formulas 2.0 guide](https://thomasfrank.notion.site/Formulas-2-0-1b6f3228097e4293993af2f3b9f7c738) in order to add all the needed properties for this workflow.`,
+					content: `Your chosen Target Database does not contain a **Next Due API** formula property. This is a separate property from the Next Due property.\n\nThis workflow requires this property to function. If you have renamed it in your database, please set it in the Next Due API Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above.\n\nP.S. – It looks like you're using Ultimate Brain. You might be using an older version of the template; if so, you can [upgrade using our Formulas 2.0 guide](https://thomasfrank.notion.site/Formulas-2-0-1b6f3228097e4293993af2f3b9f7c738) in order to add all the needed properties for this workflow.`,
 				};
 			} else {
 				props.nextDueAPIWarning = {
 					type: "alert",
 					alertType: "warning",
-					content: `Your chosen Target Database does not contain a **Next Due API** formula property. This workflow requires this property to function. If you have renamed it in your database, please set it in the Next Due API Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above.`,
+					content: `Your chosen Target Database does not contain a **Next Due API** formula property. This is a separate property from the Next Due property.\n\nThis workflow requires this property to function. If you have renamed it in your database, please set it in the Next Due API Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above, or use [this reference guide](https://thomasjfrank.com/notion-automated-recurring-tasks/#formulas-and-properties) to add the property to your chosen database.`,
 				};
 			}
 			
@@ -303,37 +302,6 @@ export default {
 		}
 
 		if (
-			!properties[helperProps.type.name] ||
-			properties[helperProps.type.name].type !== helperProps.type.type ||
-			!properties[helperProps.type.name].formula.expression.includes(
-				helperProps.type.expression
-			)
-		) {
-			helperProps.type.manual = true;
-
-			props.typeWarning = {
-				type: "alert",
-				alertType: "warning",
-				content: `Your chosen Target Database does not contain a **Type** formula property. This workflow requires this property to function. If you have renamed it in your database, please set it in the Type Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above.`,
-			};
-
-			props.typeProp = {
-				type: "string",
-				label: "Type Property",
-				description: `Select the **Type** property from your Tasks Database.\n\nThis property marks whether a task is recurring for manual recurring tasks, but this automation will automatically set it up for use with automated recurring tasks. If you've renamed this property, choose that one instead.\n\n`,
-				options: typeProps.map((prop) => ({
-					label: `${prop} - (Type: ${properties[prop].type})`,
-					value: JSON.stringify({
-						name: prop,
-						id: properties[prop].id,
-						type: properties[prop].type,
-					}),
-				})),
-				optional: false,
-			};
-		}
-
-		if (
 			!properties[helperProps.utcOffset.name] ||
 			properties[helperProps.utcOffset.name].type !== helperProps.utcOffset.type
 		) {
@@ -342,7 +310,7 @@ export default {
 			props.utcOffsetWarning = {
 				type: "alert",
 				alertType: "warning",
-				content: `Your chosen Target Database does not contain a **UTC Offset** formula property. This workflow requires this property to function. If you have renamed it in your database, please set it in the UTC Offset Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above.`,
+				content: `Your chosen Target Database does not contain a **UTC Offset** formula property. This workflow requires this property to function. If you have renamed it in your database, please set it in the UTC Offset Property field below. If your database doesn't contain it, please use one of the templates listed in the "Compatibility" section in the instructions above, or use [this reference guide](https://thomasjfrank.com/notion-automated-recurring-tasks/#formulas-and-properties) to add the property to your chosen database.`,
 			};
 
 			props.utcOffsetProp = {
@@ -399,24 +367,31 @@ export default {
 				return;
 			});
 
+			const properties = {
+				[config.utcOffset.name]: {
+					formula: {
+						expression: `${offset}`,
+					},
+				}
+			}
+
+			if (config.type) {
+				console.log(`Type property detected in config. Setting the Type property to "⏳One-Time" in addition to UTC Offest update.`)
+				
+				properties[config.type.name] = {
+					formula: {
+						expression: `if(empty(prop("Recur Interval")), "⏳One-Time", "⏳One-Time")`,
+					},
+				}
+			}
+
 			return await retry(
 				async (bail) => {
 					try {
 						const resp = await limiter.schedule(() =>
 							notion.databases.update({
 								database_id: this.databaseID,
-								properties: {
-									[config.utcOffset.name]: {
-										formula: {
-											expression: `${offset}`,
-										},
-									},
-									[config.type.name]: {
-										formula: {
-											expression: `if(empty(prop("Recur Interval")), "⏳One-Time", "⏳One-Time")`,
-										},
-									},
-								},
+								properties: properties,
 							})
 						);
 
@@ -542,33 +517,29 @@ export default {
 				};
 			}
 
-			// Set the Type property
-			if (this.typeProp) {
-				console.log(
-					`Setting the Type property to user-set property: ${this.typeProp}.`
-				);
-				config.type = JSON.parse(this.typeProp);
-			} else {
-				if (
-					!response.properties["Type"] ||
-					response.properties["Type"].type !== "formula"
-				) {
-					throw new Error(
-						`Error: Your target database is missing the "Type" property. This workflow requires this to function, and it must be a formula-type property. If you have renamed it in your database, please click "Refresh Fields" at the bottom of the Configure tab above, then set the "Type Property" field manually. If your database does not contain this property, please use one of the templates listed in the "Compatibility" section in the instructions above.`
-					);
-				}
+			/* Detect if the Type property's expression exists in the response. If so, add it to the config so it can be updated. */
+			if (
+				Object.keys(response.properties).some((prop) => {
+					const propObj = response.properties[prop];
+					return propObj.type === "formula" && propObj.formula.expression.includes("⏳One-Time");
+				})
+			) {
+				console.log(`Detected a "Type" property in the database with a formula expression containing the string: "⏳One-Time".`)
+				
+				const typeProp = Object.keys(response.properties).find((prop) => {
+					const propObj = response.properties[prop];
+					return propObj.type === "formula" && propObj.formula.expression.includes("⏳One-Time");
+				})
 
-				console.log(
-					`Setting the Type property to matched property from the Notion database: ${JSON.stringify(
-						response.properties["Type"]
-					)}.`
-				);
+				console.log(`Setting the Type property in the config to the matched property from the Notion database: ${JSON.stringify(response.properties[typeProp])}.`)
 
 				config.type = {
-					id: response.properties["Type"].id,
-					name: "Type",
-					type: "formula",
-				};
+					id: response.properties[typeProp].id,
+					name: response.properties[typeProp].name,
+					type: response.properties[typeProp].type,
+				}
+			} else {
+				console.log(`No "Type" property detected in the database with a formula expression containing the string: "⏳One-Time". Proceeding under the assumption that the target database does not contain a "Type" property and does not need one.`)
 			}
 
 			// Set the UTC Offset property
@@ -928,6 +899,12 @@ export default {
 					this.secondaryDonePropStatusCompleted
 				);
 			}
+		}
+
+		/* If user previously set a manual value for Type, delete it from the config. This has to be included because Pipedream will retain previously-chosen values, even if the step is updated to not include those fields. Yay caching! */
+		if (config.type) {
+			console.log(`Found previously-set Type property in the config. This workflow no longer uses manually-set Type properties. Removing it from the config.`)
+			delete config.type;
 		}
 
 		console.log(
