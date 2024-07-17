@@ -9,7 +9,7 @@ export default {
 	name: "Notion Recurring Tasks",
 	description: "Recurring Tasks for Ultimate Brain",
 	key: "notion-recurring-tasks",
-	version: "0.1.83",
+	version: "0.1.84",
 	type: "action",
 	props: {
 		instructions: {
@@ -376,11 +376,11 @@ export default {
 			}
 
 			if (config.type) {
-				console.log(`Type property detected in config. Setting the Type property to "⏳One-Time" in addition to UTC Offest update.`)
+				console.log(`Type property detected in config. Setting the Type property to "⏳One-Time" in addition to UTC Offset update.`)
 				
 				properties[config.type.name] = {
 					formula: {
-						expression: `if(empty(prop("Recur Interval")), "⏳One-Time", "⏳One-Time")`,
+						expression: `/* This formula has been automatically set by the Notion Recurring Tasks workflow. If you need to revert it, see the reference guide here: https://thomasjfrank.com/notion-automated-recurring-tasks/#type  */\n\n"⏳One-Time"`,
 					},
 				}
 			}
